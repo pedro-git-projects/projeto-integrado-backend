@@ -21,6 +21,21 @@ export class BudgetManager {
 		}
 	}	
 
+	public payBillById(id: string) {
+		for(let i = 0; i < this.bills.length; i++) {
+			if(this.bills[i].id === id) {
+				try {
+					this.bills[i].payBill()
+					this.totalBalance = this.totalBalance - this.bills[i].cost;
+					console.log(`Bill paid successfully`);
+
+				} catch(e :unknown) {
+					console.log(`Bill already paid`);
+				}
+			} 
+		}
+	}
+
 	public toString():string {
 		const balance = `Your blanace is: $${this.totalBalance}\n`;
 		const complement = "\nYour bill list is as follows: \n"

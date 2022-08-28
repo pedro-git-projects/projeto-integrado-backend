@@ -3,7 +3,7 @@ import { Status } from "./status.enum";
 import { idGenerator } from "../utils/id-generator";
 
 export class Bill {
-	private _id: number;
+	private _id: string;
 	title: string;
 	cost: bigint;
 	frequency: Frequency;
@@ -17,7 +17,7 @@ export class Bill {
 		this.frequency = frequency;
 		this.status = status;
 		this.due = due;
-	};
+	}
 
 	public get id() {
 		return this._id;
@@ -30,7 +30,7 @@ export class Bill {
 		frequency: ${Frequency.toString(this.frequency)}
 		status: ${Status.toString(this.status)}
 		due to: ${this.due.getDay()}/${this.due.getMonth()}/${this.due.getFullYear()}`;
-	};
+	}
 
 	public payBill(): void | never {
 		if(this.status === Status.Pending) {
@@ -38,5 +38,5 @@ export class Bill {
 		} else if(this.status === Status.Paid) {
 			throw new Error("Bill already paid");
 		}
-	};
+	}
 };

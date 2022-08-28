@@ -1,4 +1,3 @@
-export const idGenerator = ():number => {
-	const uid: number = new Date().getTime();
-	return uid;
-};
+export const idGenerator = ():string => {
+	return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}

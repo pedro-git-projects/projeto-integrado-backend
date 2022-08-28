@@ -26,13 +26,22 @@ export class BudgetManager {
 	}
 
 	public addBill(bill: Bill) {
-		this.bills.push(bill);
+		try {
+			if(!this.isRepeated(bill)){
+				this.bills.push(bill);	
+				console.log(`Bill added`);
+			};
+		} catch(e:unknown) {
+			console.log(`Duplicated bill`);	
+		}
+
 	}
 
 	public removeBill(bill: Bill) {
-		for(let i = 0; i < this.bills.length; i++) { if(this.bills[i].id === bill.id) {
+		for(let i = 0; i < this.bills.length; i++) { 
+			if(this.bills[i].id === bill.id) {
 			this.bills.splice(i, 1);
-		}
+			}
 		}
 	}	
 
@@ -82,5 +91,16 @@ export class BudgetManager {
 			accumulator += "\n";
 		}
 		return balance + complement + accumulator;
+	}
+
+	private isRepeated(bill: Bill): boolean | never{
+		const bills = this.bills;
+		let isRepeated = bills.find(el => el.id === bill.id)
+		if (isRepeated !== undefined) {
+			throw new Error("Repeated bill");
+		} else {
+			return false;
+		}
+
 	}
 };

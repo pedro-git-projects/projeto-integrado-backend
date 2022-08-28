@@ -57,6 +57,4 @@ export class Bill {
 			return true;
 		} else return false;
 	}
-
-
 };

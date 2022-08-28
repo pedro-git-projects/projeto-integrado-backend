@@ -31,4 +31,12 @@ export class Bill {
 		status: ${Status.toString(this.status)}
 		due to: ${this.due.getDay()}/${this.due.getMonth()}/${this.due.getFullYear()}`;
 	};
+
+	public payBill(): void | never {
+		if(this.status === Status.Pending) {
+			this.status = Status.Paid;
+		} else if(this.status === Status.Paid) {
+			throw new Error("Bill already paid");
+		}
+	};
 };

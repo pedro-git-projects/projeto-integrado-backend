@@ -14,7 +14,7 @@ const myBill = new Bill("bjj", 190n, recurring, paid,  date);
 // console.log(`${myBill.toString()}`);
 
 
-const myBill2 = new Bill("1", 190n, recurring, paid,  date);
+const myBill2 = new Bill("1", 190n, recurring, pending,  date);
 const myBill3 = new Bill("2", 190n, recurring, pending,  date);
 const myBill4 = new Bill("3", 190n, recurring, pending,  date);
 
@@ -29,8 +29,12 @@ budget.addBill(myBill2);
 // budget.removeBill(myBill2);
 //console.log(`${budget.toString()}`)
 
-budget.payBillById(myBill4.id);
-budget.payBillById(myBill3.id);
+//budget.payBillById(myBill4.id);
+//budget.payBillById(myBill3.id);
 console.log(`${budget.toString()}`)
 budget.payBillById(myBill3.id);
+console.log(`${budget.getBillsByPaid().toString()}`)
+console.log(`${budget.toString()}`)
+budget.removePaidBills();
+console.log(`${budget.toString()}`)
 

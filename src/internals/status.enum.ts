@@ -1,6 +1,7 @@
 export enum Status {
 	Paid,
-	Pending	
+	Pending,
+	Overdue
 };
 
 export namespace Status {
@@ -10,6 +11,8 @@ export namespace Status {
 			str = "Paid"; 
 		} else if(s === 1) {
 			str= "Pending";
+		} else if (s === 2) {
+			str = "Overdue";
 		} 
 		return str;
 	};

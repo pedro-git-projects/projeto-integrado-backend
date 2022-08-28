@@ -1,12 +1,28 @@
 import { Bill } from "./bill";
 
 export class BudgetManager {
-	totalBalance: bigint;
+	private _totalBalance: bigint;
 	bills: Bill[]; 
 
 	constructor(initalBalance: bigint, bills:Bill[]) {
-		this.totalBalance = initalBalance;
+		this._totalBalance = initalBalance;
 		this.bills = bills;
+	}
+
+	public get totalBalance() {
+		return this._totalBalance;
+	}
+
+	public set totalBalance(value: bigint) {
+		this._totalBalance = value;
+	}
+
+	public addMoney(value: bigint) {
+		this._totalBalance += value;
+	}
+
+	public removeMoney(value: bigint) {
+		this._totalBalance -= value;
 	}
 
 	public addBill(bill: Bill) {
@@ -14,10 +30,9 @@ export class BudgetManager {
 	}
 
 	public removeBill(bill: Bill) {
-		for(let i = 0; i < this.bills.length; i++) {
-			if(this.bills[i].id === bill.id) {
-				this.bills.splice(i, 1);
-			}
+		for(let i = 0; i < this.bills.length; i++) { if(this.bills[i].id === bill.id) {
+			this.bills.splice(i, 1);
+		}
 		}
 	}	
 
@@ -26,9 +41,8 @@ export class BudgetManager {
 			if(this.bills[i].id === id) {
 				try {
 					this.bills[i].payBill()
-					this.totalBalance = this.totalBalance - this.bills[i].cost;
+					this._totalBalance = this._totalBalance - this.bills[i].cost;
 					console.log(`Bill paid successfully`);
-
 				} catch(e :unknown) {
 					console.log(`Bill already paid`);
 				}
@@ -36,8 +50,31 @@ export class BudgetManager {
 		}
 	}
 
+	public getBillsByPaid = () => {
+		const bills = this.bills;
+		const paid = bills.filter(el => el.isPaid());
+		return paid;
+	}
+
+	public getBillsByPending = () => {
+		const bills = this.bills;
+		const pending = bills.filter(el => el.isPending());
+		return pending;
+	}
+
+	public getBillsByOverdue = () => {
+		const bills = this.bills;
+		const overdue = bills.filter(el => el.isOverdue());
+		return overdue;
+	}
+
+	public removePaidBills() {
+		const bills = this.bills;
+		this.bills = bills.filter(el => !el.isPaid());
+	}
+
 	public toString():string {
-		const balance = `Your blanace is: $${this.totalBalance}\n`;
+		const balance = `Your blanace is: $${this._totalBalance}\n`;
 		const complement = "\nYour bill list is as follows: \n"
 		let accumulator: string = "";
 		for(let i = 0; i < this.bills.length; i++) {

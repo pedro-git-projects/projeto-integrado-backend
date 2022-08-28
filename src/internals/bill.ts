@@ -33,10 +33,30 @@ export class Bill {
 	}
 
 	public payBill(): void | never {
-		if(this.status === Status.Pending) {
+		if(this.status === Status.Pending || Status.Overdue) {
 			this.status = Status.Paid;
 		} else if(this.status === Status.Paid) {
 			throw new Error("Bill already paid");
 		}
 	}
+
+	public isPaid():boolean {
+		if(this.status === Status.Paid) {
+			return true;
+		} else return false;
+	}
+
+	public isPending():boolean {
+		if(this.status === Status.Pending) {
+			return true;
+		} else return false;
+	}
+
+	public isOverdue():boolean {
+		if(this.status === Status.Pending) {
+			return true;
+		} else return false;
+	}
+
+
 };

@@ -1,10 +1,9 @@
+export enum Status {
+	Paid,
+	Pending	
+};
+
 export namespace Status {
-
-	export enum Status {
-		Paid,
-		Pending	
-	}; 
-
 	export const toString = (s: Status): string => {
 		let str: string = ""; 
 		if(s === 0) {

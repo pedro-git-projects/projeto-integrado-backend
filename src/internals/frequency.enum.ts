@@ -1,10 +1,9 @@
-export namespace Frequency {
-
-	export enum Frequency {
+export enum Frequency {
 		Recurring,
 		OneTime
-	}; 
+};
 
+export namespace Frequency {
 	export const toString = (f: Frequency): string => {
 		let str: string = ""; 
 		if(f === 0) {

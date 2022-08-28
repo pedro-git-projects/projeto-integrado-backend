@@ -27,11 +27,12 @@ export class BudgetManager {
 
 	public addBill(bill: Bill) {
 		try {
-			if(!this.isRepeated(bill)){
+			if(!this.isRepeated(bill)) {
 				this.bills.push(bill);	
 				console.log(`Bill added`);
-			};
-		} catch(e:unknown) {
+			}
+		} 
+		catch(e:unknown) {
 			console.log(`Duplicated bill`);	
 		}
 
@@ -52,7 +53,8 @@ export class BudgetManager {
 					this.bills[i].payBill()
 					this._totalBalance = this._totalBalance - this.bills[i].cost;
 					console.log(`Bill paid successfully`);
-				} catch(e :unknown) {
+				} 
+				catch(e :unknown) {
 					console.log(`Bill already paid`);
 				}
 			} 
@@ -93,7 +95,7 @@ export class BudgetManager {
 		return balance + complement + accumulator;
 	}
 
-	private isRepeated(bill: Bill): boolean | never{
+	private isRepeated(bill: Bill): boolean | never {
 		const bills = this.bills;
 		let isRepeated = bills.find(el => el.id === bill.id)
 		if (isRepeated !== undefined) {

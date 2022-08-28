@@ -22,4 +22,13 @@ export class Bill {
 	public get id() {
 		return this._id;
 	}
+
+	public toString():string {
+		return `
+		title: ${this.title}
+		cost: ${this.cost}
+		frequency: ${Frequency.toString(this.frequency)}
+		status: ${Status.toString(this.status)}
+		due to: ${this.due.getDay()}/${this.due.getMonth()}/${this.due.getFullYear()}`;
+	};
 };

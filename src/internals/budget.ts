@@ -61,19 +61,19 @@ export class BudgetManager {
 		}
 	}
 
-	public getBillsByPaid = () => {
+	public getBillsByPaid() {
 		const bills = this.bills;
 		const paid = bills.filter(el => el.isPaid());
 		return paid;
 	}
 
-	public getBillsByPending = () => {
+	public getBillsByPending() {
 		const bills = this.bills;
 		const pending = bills.filter(el => el.isPending());
 		return pending;
 	}
 
-	public getBillsByOverdue = () => {
+	public getBillsByOverdue() {
 		const bills = this.bills;
 		const overdue = bills.filter(el => el.isOverdue());
 		return overdue;
@@ -95,6 +95,20 @@ export class BudgetManager {
 		return balance + complement + accumulator;
 	}
 
+	public toJSON():string {
+		let json = "[";
+		for(let i = 0; i < this.bills.length; i++) {
+			json += this.bills[i].toJSON();
+			if(i != this.bills.length - 1) {
+				json += ",";
+			}
+		}
+		json += "]";
+		console.log(json);
+		console.log(JSON.parse(json))
+		return json;
+	}
+
 	private isRepeated(bill: Bill): boolean | never {
 		const bills = this.bills;
 		let isRepeated = bills.find(el => el.id === bill.id)
@@ -103,6 +117,22 @@ export class BudgetManager {
 		} else {
 			return false;
 		}
+	}
+};
 
+class StringBudget {
+	totalBalance: string;
+	bills: string[]; 
+
+	constructor(b: BudgetManager) {
+		this.totalBalance = b.totalBalance.toString();
+		let bills: string = "";
+		let arr: string[] = [];
+		for(let i = 0; i < b.bills.length; i++) {
+			bills += b.bills[i].toJSON();	
+		}
+		arr.push(bills);
+		console.log(`arr: ${arr}`);
+		this.bills = arr;
 	}
 };

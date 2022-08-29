@@ -64,9 +64,16 @@ export class Bill {
 
 	public toJSON():string {
 		const strBill = new BillString(this);	
+		console.log(strBill); // is in fact an object
 		return JSON.stringify(strBill);
 	}
-	
+
+	/*
+	public toJSON():string {
+		const strBill = new UnmarshableBill(this);	
+		return JSON.stringify(strBill);
+	}
+	*/
 };
 
 class BillString {
@@ -86,6 +93,26 @@ class BillString {
 		this.due = `${bill.due.getDay()}-${bill.due.getMonth()}-${bill.due.getFullYear()}`;
 	}
 };
+
+/*
+class UnmarshableBill {
+	id: string;
+	title: string;
+	cost: number;
+	frequency: string;
+	status: string;
+	due: Date;
+
+	constructor(bill: Bill) {
+		this.id = bill.id;
+		this.title = bill.title;
+		this.cost = Number(bill.cost);
+		this.frequency = Frequency.toString(bill.frequency);
+		this.status = Status.toString(bill.status);
+		this.due = bill.due;
+	}
+}
+*/
 
 export namespace Bill {
 	export const JSONParse = (JString : string): Bill => {

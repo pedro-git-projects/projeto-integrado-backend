@@ -16,4 +16,17 @@ export namespace Status {
 		} 
 		return str;
 	};
+
+	export const toEnum = (s: string): Status | never => {
+		if(s === "Paid") {
+			return Status.Paid;
+		} else if(s === "Pending") {
+			return Status.Pending;
+		} else if(s === "Overdue"){
+			return Status.Overdue;
+		} else {
+			throw new Error("Unprocessable String");
+		}
+	};
+
 };

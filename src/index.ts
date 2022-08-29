@@ -31,10 +31,13 @@ budget.addBill(myBill2);
 
 //budget.payBillById(myBill4.id);
 //budget.payBillById(myBill3.id);
-console.log(`${budget.toString()}`)
+console.log(`${budget.toString()}`);
 budget.payBillById(myBill3.id);
-console.log(`${budget.getBillsByPaid().toString()}`)
+console.log(`${budget.getBillsByPaid().toString()}`);
 console.log(`${budget.toString()}`)
 budget.removePaidBills();
-console.log(`${budget.toString()}`)
-
+console.log(`${budget.toString()}`);
+const JSONBill = myBill4.toJSON();
+console.log(JSONBill);
+const ObjBill = Bill.JSONParse(JSONBill); 
+console.log(ObjBill);

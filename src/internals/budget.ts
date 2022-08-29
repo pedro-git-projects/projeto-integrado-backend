@@ -96,18 +96,19 @@ export class BudgetManager {
 	}
 
 	public toJSON():string {
-		let json = "[";
+		let initial: string = `{\"totalBalance\":\"${this.totalBalance.toString()}\",\"bills\":`;
+		let arr = "[";
+		let json = initial += arr;
 		for(let i = 0; i < this.bills.length; i++) {
 			json += this.bills[i].toJSON();
 			if(i != this.bills.length - 1) {
 				json += ",";
 			}
 		}
-		json += "]";
-		console.log(json);
-		console.log(JSON.parse(json))
+		json += "]}";
 		return json;
 	}
+	
 
 	private isRepeated(bill: Bill): boolean | never {
 		const bills = this.bills;
@@ -117,22 +118,5 @@ export class BudgetManager {
 		} else {
 			return false;
 		}
-	}
-};
-
-class StringBudget {
-	totalBalance: string;
-	bills: string[]; 
-
-	constructor(b: BudgetManager) {
-		this.totalBalance = b.totalBalance.toString();
-		let bills: string = "";
-		let arr: string[] = [];
-		for(let i = 0; i < b.bills.length; i++) {
-			bills += b.bills[i].toJSON();	
-		}
-		arr.push(bills);
-		console.log(`arr: ${arr}`);
-		this.bills = arr;
 	}
 };

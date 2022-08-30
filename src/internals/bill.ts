@@ -57,7 +57,7 @@ export class Bill {
 	}
 
 	public isOverdue():boolean {
-		if(this.status === Status.Pending) {
+		if(this.status === Status.Overdue) {
 			return true;
 		} else return false;
 	}

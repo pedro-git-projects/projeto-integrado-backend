@@ -51,7 +51,7 @@ export class BudgetManager {
 	public removeBill(bill: Bill) {
 		for(let i = 0; i < this.bills.length; i++) { 
 			if(this.bills[i].id === bill.id) {
-			this.bills.splice(i, 1);
+				this.bills.splice(i, 1);
 			}
 		}
 	}	
@@ -107,55 +107,65 @@ export class BudgetManager {
 
 	public toJSON():string {
 		let initial: string = `{\"totalBalance\":\"${this.totalBalance.toString()}\",\"bills\":`;
-		let arr = "[";
-		let json = initial += arr;
-		for(let i = 0; i < this.bills.length; i++) {
-			json += this.bills[i].toJSON();
-			if(i != this.bills.length - 1) {
-				json += ",";
+			let arr = "[";
+			let json = initial += arr;
+			for(let i = 0; i < this.bills.length; i++) {
+				json += this.bills[i].toJSON();
+				if(i != this.bills.length - 1) {
+					json += ",";
+				}
+			}
+			json += "]}";
+			return json;
+		}
+
+		private isRepeated(bill: Bill): boolean | never {
+			const bills = this.bills;
+			let isRepeated = bills.find(el => el.id === bill.id)
+			if (isRepeated !== undefined) {
+				throw new Error("Repeated bill");
+			} else {
+				return false;
 			}
 		}
-		json += "]}";
-		return json;
-	}
-	
+	};
 
-	private isRepeated(bill: Bill): boolean | never {
-		const bills = this.bills;
-		let isRepeated = bills.find(el => el.id === bill.id)
-		if (isRepeated !== undefined) {
-			throw new Error("Repeated bill");
-		} else {
-			return false;
+	class BudgetString {
+		totalBalance: string; 
+		bills: string[]; 
+
+		constructor(budget: BudgetManager) {
+			let arr = [];
+			for(let i = 0; i < budget.bills.length; i ++) {
+				arr.push(budget.bills[i].toJSON())	
+			}
+			this.totalBalance = budget.totalBalance.toString();
+			this.bills = arr;
+
 		}
-	}
-};
+	};
 
-class BudgetString {
-	totalBalance: string; 
-	bills: string[]; 
+	export namespace Budget {
+		export const JSONParse = (JString: string): BudgetManager => {
+			let bills:Bill[] = [];
+			const budgetStr = JSON.parse(JString) as BudgetString;
+			const balance = BigInt(budgetStr.totalBalance); 
+			for(let i = 0; i < budgetStr.bills.length; i++) {
+				let b = budgetStr.bills[i] as unknown as BillString; 
+				bills.push(Bill.ParseBillStr(b));
+			}
+			return new BudgetManager(balance, bills);
+		}; 
 
-	constructor(budget: BudgetManager) {
-		let arr = [];
-		for(let i = 0; i < budget.bills.length; i ++) {
-			arr.push(budget.bills[i].toJSON())	
+		export const billsToJSON  = (b: Bill[]):string => {
+			let json :string = `[`
+				for(let i = 0; i < b.length; i++) {
+					json += b[i].toJSON();
+					if(i != b.length - 1) {
+						json += ",";
+					}	
+				}
+				json += "]";
+				return json;
 		}
-		this.totalBalance = budget.totalBalance.toString();
-		this.bills = arr;
-		
-	}
-
-};
-
-export namespace Budget {
-	export const JSONParse = (JString: string): BudgetManager => {
-		let bills:Bill[] = [];
-		const budgetStr = JSON.parse(JString) as BudgetString;
-		const balance = BigInt(budgetStr.totalBalance); 
-		for(let i = 0; i < budgetStr.bills.length; i++) {
-			let b = budgetStr.bills[i] as unknown as BillString; 
-			bills.push(Bill.ParseBillStr(b));
-		}
-		return new BudgetManager(balance, bills);
-	}; 
-};
+	};

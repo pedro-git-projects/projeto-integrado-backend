@@ -76,7 +76,7 @@ export class Bill {
 	*/
 };
 
-class BillString {
+export class BillString {
 	id: string;
 	title: string;
 	cost: string;
@@ -125,4 +125,14 @@ export namespace Bill {
 		parsed.id = o.id;
 		return parsed;
 	}; 
+
+	export const ParseBillStr = (bs: BillString): Bill => {
+		const cost = BigInt(bs.cost);
+		const frequency = Frequency.toEnum(bs.frequency);
+		const status = Status.toEnum(bs.status);
+		const due = new Date(bs.due);
+		const parsed = new Bill(bs.title, cost,frequency, status, due);
+		parsed.id = bs.id;
+		return parsed;
+	} 
 };

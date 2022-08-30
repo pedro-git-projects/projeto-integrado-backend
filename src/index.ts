@@ -2,6 +2,7 @@ import { Bill } from "./internals/bill";
 import {BudgetManager} from "./internals/budget";
 import { Frequency } from "./internals/frequency.enum";
 import {Status} from "./internals/status.enum";
+import { Budget } from "./internals/budget";
 
 
 const recurring = Frequency.Recurring;
@@ -43,3 +44,5 @@ console.log("AAAAAAAA" + JSONBill); // correctly returning JSON
 //console.log(ObjBill);
 const BudgetJSON = budget.toJSON();
 console.log(BudgetJSON);
+const parsed = Budget.JSONParse(BudgetJSON);
+console.log(parsed)

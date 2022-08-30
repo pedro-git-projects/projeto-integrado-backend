@@ -1,4 +1,4 @@
-import { Bill } from "./bill";
+import { Bill, BillString } from "./bill";
 
 export class BudgetManager {
 	private _totalBalance: bigint;
@@ -119,4 +119,33 @@ export class BudgetManager {
 			return false;
 		}
 	}
+};
+
+class BudgetString {
+	totalBalance: string; 
+	bills: string[]; 
+
+	constructor(budget: BudgetManager) {
+		let arr = [];
+		for(let i = 0; i < budget.bills.length; i ++) {
+			arr.push(budget.bills[i].toJSON())	
+		}
+		this.totalBalance = budget.totalBalance.toString();
+		this.bills = arr;
+		
+	}
+
+};
+
+export namespace Budget {
+	export const JSONParse = (JString: string) => {
+		let bills:Bill[] = [];
+		const budgetStr = JSON.parse(JString) as BudgetString;
+		const balance = BigInt(budgetStr.totalBalance); 
+		for(let i = 0; i < budgetStr.bills.length; i++) {
+			let b = budgetStr.bills[i] as unknown as BillString; 
+			bills.push(Bill.ParseBillStr(b));
+		}
+		return new BudgetManager(balance, bills);
+	}; 
 };

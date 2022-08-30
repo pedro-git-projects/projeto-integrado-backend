@@ -25,6 +25,16 @@ export class BudgetManager {
 		this._totalBalance -= value;
 	}
 
+	public getAllBills():Bill[] {
+		return this.bills
+	}
+
+	public getBillByID(id:string) {
+		const bills = this.bills;
+		const byID = bills.find(el => el.id === id);
+		return byID;	
+	}
+
 	public addBill(bill: Bill) {
 		try {
 			if(!this.isRepeated(bill)) {

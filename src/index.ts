@@ -3,6 +3,7 @@ import {BudgetManager} from "./internals/budget";
 import { Frequency } from "./internals/frequency.enum";
 import {Status} from "./internals/status.enum";
 import { Budget } from "./internals/budget";
+import { BudgetModel } from "./models/budget.model";
 
 
 const recurring = Frequency.Recurring;
@@ -46,3 +47,4 @@ const BudgetJSON = budget.toJSON();
 console.log(BudgetJSON);
 const parsed = Budget.JSONParse(BudgetJSON);
 console.log(parsed)
+console.log(BudgetModel)

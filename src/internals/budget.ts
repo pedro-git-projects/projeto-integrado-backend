@@ -138,7 +138,7 @@ class BudgetString {
 };
 
 export namespace Budget {
-	export const JSONParse = (JString: string) => {
+	export const JSONParse = (JString: string): BudgetManager => {
 		let bills:Bill[] = [];
 		const budgetStr = JSON.parse(JString) as BudgetString;
 		const balance = BigInt(budgetStr.totalBalance); 

@@ -73,4 +73,26 @@ export class BudgetController {
 		}
 	};
 
+	public getTotalBalance = async(req: Request, res: Response, next: NextFunction): Promise<void|never> => {
+		try {
+			const balance: BigInt = await this.budgetService.findTotalBalance();
+			const balanceStr = String(balance);
+			res.status(200).json({totalBalance: balanceStr});
+		} catch(err) {
+			next(err);
+		}
+	};
+
+	public createBill = async(req: Request, res: Response, next: NextFunction): Promise<void|never> => {
+		try{
+			const newBill: Bill = await this.budgetService.createBill(req.body);
+			res
+			.status(201)
+			.type('application/json')
+			.send(newBill.toJSON())
+		} catch(err) {
+			next(err)
+		}
+	};
+
 };

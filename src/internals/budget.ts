@@ -1,3 +1,4 @@
+import {HTTPException} from "../exceptions/HTTPException";
 import { Bill, BillString } from "./bill";
 
 export class BudgetManager {
@@ -39,13 +40,11 @@ export class BudgetManager {
 		try {
 			if(!this.isRepeated(bill)) {
 				this.bills.push(bill);	
-				console.log(`Bill added`);
 			}
 		} 
 		catch(e:unknown) {
-			console.log(`Duplicated bill`);	
+			throw new HTTPException(409, "Conflict");
 		}
-
 	}
 
 	public removeBill(bill: Bill) {

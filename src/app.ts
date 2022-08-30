@@ -9,6 +9,7 @@ export class App {
 		this.app = express();
 		this.port = 3000;
 
+		this.initializeMiddleware();
 		this.initializeRoutes(routes);
 	}
 
@@ -28,5 +29,9 @@ export class App {
 		routes.forEach(route => {
 			this.app.use('/', route.router)
 		});
+	}
+
+	private initializeMiddleware() {
+		this.app.use(express.json());
 	}
 }

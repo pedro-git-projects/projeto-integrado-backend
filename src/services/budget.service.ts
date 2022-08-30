@@ -2,6 +2,7 @@ import {BudgetManager} from "../internals/budget";
 import { BudgetModel } from "../models/budget.model";
 import { HTTPException} from "../exceptions/HTTPException";
 import { Bill } from "../internals/bill";
+import { JSONBill } from "../internals/bill";
 
 export class BudgetService {
 	public budget = BudgetModel;
@@ -42,8 +43,20 @@ export class BudgetService {
 	public async findBillsByOverdue(): Promise<Bill[]|never> {
 		const budget: BudgetManager = this.budget;
 		const overdue: Bill[] = budget.getBillsByOverdue();
-		console.log(`${overdue.toString()}`)
 		if(overdue.length === 0) throw new HTTPException(404, "No overdue bills");
 		return overdue;
+	} 
+
+	public async findTotalBalance(): Promise<BigInt|never> {
+		const budget: BudgetManager = this.budget; 
+		const balance = budget.totalBalance;
+		return balance;
+	}
+
+	public async createBill(json:string): Promise<Bill|never> {
+		const b = json as unknown as JSONBill; 
+		const bill = Bill.ParseJSONStr(b);
+		this.budget.addBill(bill);
+		return bill;		
 	} 
 };

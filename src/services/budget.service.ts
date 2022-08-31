@@ -77,7 +77,6 @@ export class BudgetService {
 	public async addMoney(value: string): Promise<BudgetManager|never> {
 		const budget = this.budget;
 		const v = value as unknown as valueStr; 
-		console.log(v);
 		const numeric: bigint = BigInt(v.value);	
 		if(numeric === null || numeric === undefined) {
 			throw new HTTPException(422, "Unprocessable entity")

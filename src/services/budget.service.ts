@@ -3,6 +3,7 @@ import { BudgetModel } from "../models/budget.model";
 import { HTTPException} from "../exceptions/HTTPException";
 import { Bill } from "../internals/bill";
 import { JSONBill } from "../internals/bill";
+import { valueStr } from "../internals/budget";
 
 export class BudgetService {
 	public budget = BudgetModel;
@@ -71,5 +72,17 @@ export class BudgetService {
 			budget.removeBill(byID);
 			return byID;
 		} 
+	}
+
+	public async addMoney(value: string): Promise<BudgetManager|never> {
+		const budget = this.budget;
+		const v = value as unknown as valueStr; 
+		console.log(v);
+		const numeric: bigint = BigInt(v.value);	
+		if(numeric === null || numeric === undefined) {
+			throw new HTTPException(422, "Unprocessable entity")
+		}
+		budget.addMoney(numeric);
+		return budget;
 	}
 };

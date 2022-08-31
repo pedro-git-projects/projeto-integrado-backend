@@ -4,9 +4,8 @@ import { Bill, BillString } from "./bill";
 export class BudgetManager {
 	private _totalBalance: bigint;
 	bills: Bill[]; 
-
-	constructor(initalBalance: bigint, bills:Bill[]) {
-		this._totalBalance = initalBalance;
+constructor(initialBalance: bigint, bills:Bill[]) {
+		this._totalBalance = initialBalance;
 		this.bills = bills;
 	}
 
@@ -94,7 +93,7 @@ export class BudgetManager {
 	}
 
 	public toString():string {
-		const balance = `Your blanace is: $${this._totalBalance}\n`;
+		const balance = `Your balance is: $${this._totalBalance}\n`;
 		const complement = "\nYour bill list is as follows: \n"
 		let accumulator: string = "";
 		for(let i = 0; i < this.bills.length; i++) {
@@ -143,6 +142,10 @@ export class BudgetManager {
 
 		}
 	};
+
+	export interface valueStr {
+		value: string;
+	}
 
 	export namespace Budget {
 		export const JSONParse = (JString: string): BudgetManager => {

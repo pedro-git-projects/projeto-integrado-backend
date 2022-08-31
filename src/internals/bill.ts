@@ -57,14 +57,13 @@ export class Bill {
 	}
 
 	public isOverdue():boolean {
-		if(this.status === Status.Pending) {
+		if(this.status === Status.Overdue) {
 			return true;
 		} else return false;
 	}
 
 	public toJSON():string {
 		const strBill = new BillString(this);	
-		console.log(strBill); // is in fact an object
 		return JSON.stringify(strBill);
 	}
 };
@@ -87,15 +86,38 @@ export class BillString {
 	}
 };
 
+export class JSONBill {
+	id: string;
+	title: string;
+	cost: string;
+	frequency: string;
+	status: string;
+	due: string;
+
+	constructor(id:string, title:string, cost:string, frequency:string, status:string, due:string) {
+		this.id = id;
+		this.title = title;
+		this.cost = cost;
+		this.frequency = frequency;
+		this.status = status;
+		this.due = due;
+	}
+
+};
+
 export namespace Bill {
-	export const JSONParse = (JString : string): Bill => {
+	export const JSONParse = (JString: string): Bill => {
 		const o = JSON.parse(JString) as BillString;
 		const cost = BigInt(o.cost);
 		const frequency = Frequency.toEnum(o.frequency);
 		const status = Status.toEnum(o.status);
 		const due = new Date(o.due);
 		const parsed = new Bill(o.title, cost, frequency, status, due);	
-		parsed.id = o.id;
+		if(parsed.id != "") {
+			parsed.id = o.id;
+		} else {
+			parsed.id = idGenerator(); 
+		}
 		return parsed;
 	}; 
 
@@ -107,5 +129,16 @@ export namespace Bill {
 		const parsed = new Bill(bs.title, cost,frequency, status, due);
 		parsed.id = bs.id;
 		return parsed;
-	} 
+	}; 
+
+	export const ParseJSONStr = (js: JSONBill): Bill | never => {
+		const b = js as JSONBill;
+		const cost = BigInt(b.cost);
+		const title = b.title;
+		const due = new Date(b.due);
+		const frequency = Frequency.toEnum(b.frequency);
+		const status = Status.toEnum(b.status); 
+		const bill = new Bill(title, cost, frequency, status, due);
+		return bill;
+	}; 
 };

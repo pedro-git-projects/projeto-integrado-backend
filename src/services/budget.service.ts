@@ -15,8 +15,7 @@ export class BudgetService {
 	public async findAllBills(): Promise<Bill[]> {
 		const budget: BudgetManager = this.budget;
 		const bills = budget.getAllBills();
-		return bills;
-	}
+		return bills; }
 
 	public async findBillByID(id:string): Promise<Bill|never > {
 		const budget: BudgetManager = this.budget;
@@ -56,7 +55,21 @@ export class BudgetService {
 	public async createBill(json:string): Promise<Bill|never> {
 		const b = json as unknown as JSONBill; 
 		const bill = Bill.ParseJSONStr(b);
+		if(bill === undefined || bill === null) {
+			throw new HTTPException(422, "Unprocessable entity");
+		}
 		this.budget.addBill(bill);
 		return bill;		
 	} 
+
+	public async deleteBill(id:string): Promise<Bill|never> {
+		const budget: BudgetManager = this.budget;
+		const byID = budget.getBillByID(id);
+		if(byID === undefined) { 
+			throw new HTTPException(404, "Bill not found");
+		} else {
+			budget.removeBill(byID);
+			return byID;
+		} 
+	}
 };

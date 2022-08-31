@@ -131,7 +131,7 @@ export namespace Bill {
 		return parsed;
 	}; 
 
-	export const ParseJSONStr = (js: JSONBill): Bill => {
+	export const ParseJSONStr = (js: JSONBill): Bill | never => {
 		const b = js as JSONBill;
 		const cost = BigInt(b.cost);
 		const title = b.title;

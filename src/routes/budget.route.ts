@@ -22,5 +22,7 @@ export class BudgetRoute implements Routes {
 		this.router.get(`${this.path}/bills/overdue`, this.budgetController.getBillsByOverdue);
 		this.router.delete(`${this.path}/bill/delete/:id`, this.budgetController.removeBill);
 		this.router.put(`${this.path}/balance/add`, this.budgetController.addMoney);
+		this.router.put(`${this.path}/balance/remove`, this.budgetController.removeMoney);
+		this.router.put(`${this.path}/bill/pay/:id`, this.budgetController.payBillByID);
 	}
 };

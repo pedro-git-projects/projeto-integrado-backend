@@ -84,4 +84,27 @@ export class BudgetService {
 		budget.addMoney(numeric);
 		return budget;
 	}
+
+	public async removeMoney(value: string): Promise<BudgetManager|never> {
+		const budget = this.budget;
+		const v = value as unknown as valueStr; 
+		const numeric: bigint = BigInt(v.value);	
+		if(numeric === null || numeric === undefined) {
+			throw new HTTPException(422, "Unprocessable entity")
+		}
+		budget.removeMoney(numeric);
+		return budget;
+	}
+
+	public async payBill(id: string): Promise<BudgetManager|never> {
+		const budget = this.budget;
+		const billToPay = budget.getBillByID(id);
+		if(billToPay === undefined) {
+			throw new HTTPException(404, "Bill not found");
+		} else {
+			budget.payBillById(id);
+			return budget;
+		}
+	}
+
 };

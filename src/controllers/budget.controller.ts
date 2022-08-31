@@ -120,4 +120,28 @@ export class BudgetController {
 		}
 	}
 
+	public removeMoney = async(req: Request, res: Response, next: NextFunction): Promise<void|never> => {
+		try {
+			const account = await this.budgetService.removeMoney(req.body);	
+			res
+			.status(200)
+			.type('application/json')
+			.send(account.toJSON());
+		} catch(err){
+			next(err);
+		}
+	}
+
+	public payBillByID = async (req: Request, res: Response, next: NextFunction): Promise<void|never> => {
+		try {
+			const paid = await this.budgetService.payBill(req.params.id); 
+			res
+			.status(200)
+			.type('application/json')
+			.send(paid.toJSON());
+		} catch(err) {
+			next(err);
+		}
+	}
+
 };

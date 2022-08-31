@@ -1,10 +1,11 @@
 import {HTTPException} from "../exceptions/HTTPException";
 import { Bill, BillString } from "./bill";
+import { Status } from "./status.enum";
 
 export class BudgetManager {
 	private _totalBalance: bigint;
 	bills: Bill[]; 
-constructor(initialBalance: bigint, bills:Bill[]) {
+	constructor(initialBalance: bigint, bills:Bill[]) {
 		this._totalBalance = initialBalance;
 		this.bills = bills;
 	}
@@ -55,19 +56,18 @@ constructor(initialBalance: bigint, bills:Bill[]) {
 	}	
 
 	public payBillById(id: string) {
-		for(let i = 0; i < this.bills.length; i++) {
-			if(this.bills[i].id === id) {
-				try {
-					this.bills[i].payBill()
-					this._totalBalance = this._totalBalance - this.bills[i].cost;
-					console.log(`Bill paid successfully`);
+			for(let i = 0; i < this.bills.length; i++) {
+				if(this.bills[i].id === id && this.bills[i].status != Status.Paid) {
+					try {
+						this.bills[i].payBill();
+						this._totalBalance = this._totalBalance - this.bills[i].cost;
+					} 
+					catch(e :unknown) {
+						console.log(e);
+					}
 				} 
-				catch(e :unknown) {
-					console.log(`Bill already paid`);
-				}
-			} 
+			}
 		}
-	}
 
 	public getBillsByPaid() {
 		const bills = this.bills;

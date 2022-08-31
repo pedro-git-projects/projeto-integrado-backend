@@ -55,12 +55,13 @@ export class BudgetService {
 
 	public async createBill(json:string): Promise<Bill|never> {
 		const b = json as unknown as JSONBill; 
-		const bill = Bill.ParseJSONStr(b);
-		if(bill === undefined || bill === null) {
+		try {
+			const bill = Bill.ParseJSONStr(b);
+			this.budget.addBill(bill);
+			return bill;		
+		} catch(err) {
 			throw new HTTPException(422, "Unprocessable entity");
 		}
-		this.budget.addBill(bill);
-		return bill;		
 	} 
 
 	public async deleteBill(id:string): Promise<Bill|never> {

@@ -1,5 +1,6 @@
 import express from "express";
 import {Routes} from "./internals/routes.interface";
+import {errorMiddleware} from "./middleware/error.middleware";
 
 export class App {
 	public app: express.Application;
@@ -11,6 +12,7 @@ export class App {
 
 		this.initializeMiddleware();
 		this.initializeRoutes(routes);
+		this.initializeErrorHandling();
 	}
 
 	public getServer() {
@@ -33,5 +35,9 @@ export class App {
 
 	private initializeMiddleware() {
 		this.app.use(express.json());
+	}
+
+	private initializeErrorHandling() {
+		this.app.use(errorMiddleware);
 	}
 }

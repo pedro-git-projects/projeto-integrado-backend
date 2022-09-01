@@ -5,6 +5,9 @@ import { BudgetModel } from "../models/budget.model";
 import {BudgetRoute} from "../routes/budget.route";
 import { Bill } from "../internals/bill";
 import { Budget } from "../internals/budget";
+import { Frequency } from "../internals/frequency.enum";
+import { Status } from "../internals/status.enum";
+import {CreateBillDTO} from "../dto/bill.dto";
 
 afterAll(async () => {
 	await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
@@ -87,6 +90,22 @@ describe('Testing BudgetModel', () => {
 
 			return request(app.getServer()).
 				get(`${budgetRoute.path}/balance`).expect(200, {totalBalance: findBalanceStr});
+		});
+	});
+
+	describe('[POST] /budget/bill/create', () => {
+		it('response statusCode 201 / created', async () => {
+			const billData: CreateBillDTO = {
+				title: "Nova", 
+				cost: "50",
+				frequency: "OneTime",
+				status: "Paid",
+				due: "10-10-2020",
+			};
+
+			const budgetRoute = new BudgetRoute();
+			const app = new App([budgetRoute]);
+			return request(app.getServer()).post(`${budgetRoute.path}/bill/create`).send(billData).expect(201);
 		});
 	});
 });

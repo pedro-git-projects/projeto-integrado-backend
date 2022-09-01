@@ -22,3 +22,4 @@ Construir uma versão inicial da **API REST** utilizando o framework Express. El
 | /budget/balance/add     | PUT    | Adiciona saldo                   |
 | /budget/balance/remove  | PUT    | Remove saldo                     |
 | /budget/bill/pay/:id    | PUT    | Paga uma conta por ID            |
+| /api-docs               | GET    | Documentação com Swagger 	      |

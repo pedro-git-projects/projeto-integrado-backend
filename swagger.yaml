@@ -1,0 +1,281 @@
+tags:
+- name: budgetManager 
+  description: Budget Manager API
+
+paths:
+# [GET] budgetManager 
+  /budget:
+    get:
+      tags:
+      - budget 
+      summary: Reotrna o Gerenciador de Finanças 
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+
+# [GET] bills 
+  /budget/bills:
+    get:
+      tags:
+      - bill 
+      summary: Reotrna todas as contas 
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+
+# [GET] paid bills 
+  /budget/bills/paid:
+    get:
+      tags:
+      - bill 
+      summary: retorna todas as contas pagas 
+      responses:
+        200:
+          description: 'ok'
+        500:
+          description: 'server error'
+
+# [get] pending bills 
+  /budget/bills/pending:
+    get:
+      tags:
+      - bill 
+      summary: retorna todas as contas pendentes 
+      responses:
+        200:
+          description: 'ok'
+        500:
+          description: 'server error'
+
+# [get] overdue bills 
+  /budget/bills/overdue:
+    get:
+      tags:
+      - bill 
+      summary: retorna todas as contas atrasads 
+      responses:
+        200:
+          description: 'ok'
+        500:
+          description: 'server error'
+
+# [get] total balance 
+  /budget/balance/:
+    get:
+      tags:
+      - budget 
+      summary: retorna todas as contas atrasads 
+      responses:
+        200:
+          description: 'ok'
+        500:
+          description: 'server error'
+
+# [POST] bill 
+  /budget/bill/create:
+    post:
+      tags:
+      - bill 
+      summary: Add bill 
+      parameters:
+      - name: title 
+        in: body
+        description: user Data
+        example: "JiuJitsu"
+        required: true
+      - name: cost 
+        in: body
+        description: user Data
+        type: string
+        example: "190"
+        required: true
+      - name: frequency 
+        in: body
+        description: user Data
+        example: "Recurring"
+        required: true
+      - name: status 
+        in: body
+        description: user Data
+        example: "OneTime"
+        required: true
+      - name: due 
+        in: body 
+        description: user Data
+        example: "6-9-2022"
+        required: true
+        schema:
+          $ref: '#/definitions/bill'
+          examples:
+            value:
+              name: JiuJitsu
+              cost: 190
+              frequency: "OneTime"
+              status: "Paid"
+              due: "05-06-2021"
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# [GET] budget/bill/id
+  /budget/bill/{id}:
+    get:
+      tags:
+      - bill 
+      summary: Find bill by ID 
+      parameters:
+      - name: id
+        in: path
+        description: Bill Id
+        required: true
+        type: string 
+        example: l7ghkrl53temg0c84a4
+      responses:
+        200:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# [PUT] budget/balance/add
+/budget/balance/add:
+    put:
+      tags:
+      - balance 
+      summary: Adicionar dinheiro na conta
+      parameters:
+      - name: value 
+        in: body 
+        description: value to add 
+        required: true
+        type: string 
+        example: "10"
+        schema:
+          type: object 
+          properties:
+            value:
+              type: string
+          example:
+            value: "10"
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# [PUT] budget/balance/remove
+/budget/balance/remove:
+    put:
+      tags:
+      - balance 
+      summary: Remover dinheiro da conta
+      parameters:
+      - name: value 
+        in: body 
+        description: value to remove 
+        required: true
+        type: string 
+        example: "10"
+        schema:
+          type: object 
+          properties:
+            value:
+              type: string
+          example:
+            value: "10"
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# [DELETE] /budget/bill/delete/{id} 
+/budget/bill/delete/{id}:
+    delete:
+      tags:
+      - bill 
+      summary: Deletar conta por ID 
+      parameters:
+      - name: id
+        in: path
+        description: ID da conta
+        example: l7ghkrl5biuouynhlkj
+        required: true
+        type: string 
+      responses:
+        200:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# definitions
+definitions:
+  bill:
+    type: object
+    required:
+        - title 
+        - cost 
+        - frequency
+        - status
+        - due
+    properties:
+      title:
+        type: string
+        description: Bill title  
+        example: "Titulo"
+      cost:
+        type: string
+        description: Bill cost, must be composed only of numbers 
+        example: "110"
+      frequency:
+        type: string
+        description: If the bill payment is Recurring or OneTime
+        example: "OneTime"
+      status:
+        type: string
+        description: Tells if the bill is Paid, Pending or Overdue 
+        example: "Paid"
+        due:
+          type: string
+          description: String date for when the bill is due to
+          example: "02-10-2002"
+        id:
+          type: string
+          description: Uniquely identifies each bill
+    budgetManager:
+      type: object
+      required:
+        - totalBalance
+        - bills
+      properties:
+        totalBalance:
+          type: string
+          description: Total account balance
+          example: "4000"
+        bills:
+          type: string
+          description: collection of bills
+schemes:
+ - https
+ - http

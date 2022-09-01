@@ -5,8 +5,6 @@ import { BudgetModel } from "../models/budget.model";
 import {BudgetRoute} from "../routes/budget.route";
 import { Bill } from "../internals/bill";
 import { Budget } from "../internals/budget";
-import { Frequency } from "../internals/frequency.enum";
-import { Status } from "../internals/status.enum";
 import {CreateBillDTO} from "../dto/bill.dto";
 
 afterAll(async () => {
@@ -108,6 +106,16 @@ describe('Testing BudgetModel', () => {
 			return request(app.getServer()).post(`${budgetRoute.path}/bill/create`).send(billData).expect(201);
 		});
 	});
-});
 
+describe('[DELETE] /budget/delete/:id', () => {
+		it('response statusCode 200 / deleted', async () => {
+			const id = "l7ghkrl53temg0c84a4";
+			const billToDelete = BudgetModel.getBillByID(id)!;
+			// BudgetModel.removeBill(billToDelete);
+			const budgetRoute = new BudgetRoute();
+			const app = new App([budgetRoute]);
+			return request(app.getServer()).delete(`${budgetRoute.path}/bill/delete/${id}`).send(billToDelete.toJSON()).expect(200);
+		});
+	});
 
+ });

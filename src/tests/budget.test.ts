@@ -4,6 +4,7 @@ import { BudgetManager } from "../internals/budget";
 import { BudgetModel } from "../models/budget.model";
 import {BudgetRoute} from "../routes/budget.route";
 import { Bill } from "../internals/bill";
+import { Budget } from "../internals/budget";
 
 afterAll(async () => {
 	await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
@@ -31,6 +32,16 @@ describe('Testing BudgetModel', () => {
 
 			return request(app.getServer()).
 				get(`${budgetRoute.path}/bill/${ID}`).expect(200, findBill.toJSON())
+		});
+	});
+	describe('[GET] /budget/bills', () => {
+		it('response statusCode 200/ findAllBills', () => {
+			const findAllBills: Bill[] = BudgetModel.getAllBills(); 
+			const budgetRoute = new BudgetRoute();
+			const app = new App([budgetRoute]);
+
+			return request(app.getServer()).
+				get(`${budgetRoute.path}/bills`).expect(200, Budget.billsToJSON(findAllBills));
 		});
 	});
 });

@@ -39,7 +39,7 @@ Ou:
 - Executar o comando
 
 ```
-make install
+$ make install
 ```
 
 ### Executando o projeto:
@@ -49,13 +49,13 @@ Para executar o projeto basta:
 - Executar o comando:
 
 ```
-npm run dev
+$ npm run dev
 ```
 
 Ou:
 
 ```
-make run
+$ make run
 ```
 
 ### Rodando os testes
@@ -65,13 +65,13 @@ Para rodar os testes basta:
 - Executar o comando 
 
 ```
-npm run test
+$ npm run test
 ```
 
 ou 
 
 ```
-make test
+$ make test
 ```
 
 ### Estrutura 

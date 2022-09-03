@@ -30,7 +30,7 @@ export class BudgetManager {
 		return this.bills
 	}
 
-	public getBillByID(id:string) {
+	public getBillByID(id:string):Bill|undefined {
 		const bills = this.bills;
 		const byID = bills.find(el => el.id === id);
 		return byID;	

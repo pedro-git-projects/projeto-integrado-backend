@@ -107,15 +107,23 @@ describe('Testing BudgetModel', () => {
 		});
 	});
 
+ describe('[PUT] /budget/bill/pay/:id', () => {
+    it('response statusCode 200 / updated', async () => {
+		const id = "l7ghkrl5akl9xk7aana";
+		const budgetRoute = new BudgetRoute();
+		const app = new App([budgetRoute]);
+		const afterBill = BudgetModel.toJSON();
+		return request(app.getServer()).put(`${budgetRoute.path}/bill/pay/${id}`).send(afterBill).expect(200);
+    });
+  });
+
 describe('[DELETE] /budget/delete/:id', () => {
 		it('response statusCode 200 / deleted', async () => {
 			const id = "l7ghkrl53temg0c84a4";
 			const billToDelete = BudgetModel.getBillByID(id)!;
-			// BudgetModel.removeBill(billToDelete);
 			const budgetRoute = new BudgetRoute();
 			const app = new App([budgetRoute]);
 			return request(app.getServer()).delete(`${budgetRoute.path}/bill/delete/${id}`).send(billToDelete.toJSON()).expect(200);
 		});
 	});
-
  });

@@ -4,4 +4,4 @@ export class CreateBillDTO {
 	public frequency: string;
 	public status: string;
 	public due: string;
-}
+};

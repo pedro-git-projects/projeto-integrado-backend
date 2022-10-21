@@ -9,6 +9,7 @@ export class App {
 	public app: express.Application;
 	public port: string | number;
 	public connectionString: string;
+	public collections : { budget?: mongoDB.Collection };
 
 	private client: mongoDB.MongoClient;
 	private db: mongoDB.Db;
@@ -17,9 +18,11 @@ export class App {
 		this.port = 3000;
 		this.app = express();
 
-		this.connectionString = "mongodb://127.0.0.1:27017/pi"; 
+		this.collections = {};
 
+		this.connectionString = "mongodb://127.0.0.1:27017/pi"; 
 		this.connectToDatabase();
+
 		this.initializeMiddleware();
 		this.initializeRoutes(routes);
 		this.initializeSwagger();
@@ -42,10 +45,13 @@ export class App {
 		this.client = new mongoDB.MongoClient(this.connectionString);
 		await this.client.connect().catch(err => console.log(err));
 		this.db = this.client.db();
+
+		const budgetCollection: mongoDB.Collection = this.db.collection("budgetmanager");
+		this.collections.budget = budgetCollection;
 		
-		console.log(`===========================================`);
-        console.log(`Successfully connected to database: ${this.db.databaseName}  ✔️  `);	
-		console.log(`===========================================`);
+		console.log(`=========================================================================`);
+        console.log(`Successfully connected to database: ${this.db.databaseName} and collection ${budgetCollection.collectionName} ✔️  `);	
+		console.log(`=========================================================================`);
 
 	}
 

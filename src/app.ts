@@ -1,9 +1,10 @@
 import express from "express";
-import {Routes} from "./internals/routes.interface";
+import {Routes} from "./interfaces/routes.interface";
+import { connect, set } from "mongoose";
 import {errorMiddleware} from "./middleware/error.middleware";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { connectToDatabase } from "./services/mongo.service";
+import {dbConnection} from "./databases";
 
 export class App {
 	public app: express.Application;
@@ -12,8 +13,8 @@ export class App {
 	constructor(routes: Routes[]) {
 		this.port = 3000;
 		this.app = express();
-		connectToDatabase();
 
+		this.connectToDatabase();
 		this.initializeMiddleware();
 		this.initializeRoutes(routes);
 		this.initializeSwagger();
@@ -30,6 +31,10 @@ export class App {
 			console.log(`🚀 App listening on port ${this.port}`);
 			console.log(`===============================`);
 		});
+	}
+
+	private connectToDatabase() {
+		connect(dbConnection.url)
 	}
 
 	private initializeRoutes(routes: Routes[]) {

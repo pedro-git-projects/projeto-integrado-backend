@@ -1,6 +1,6 @@
 import  request  from "supertest";
 import { App } from "../app";
-import { BudgetManager } from "../internals/budget";
+import { BudgetManager } from "../interfaces/budget";
 import { BudgetModel } from "../models/budget.model";
 import {BudgetRoute} from "../routes/budget.route";
 import { Bill } from "../internals/bill";

@@ -19,7 +19,6 @@ class BillController {
 		try {
 			const ID: string = req.params.id;
 			const findOneBillData: Bill = await this.billService.findBillByID(ID);
-
 			res.status(200).json({ data: findOneBillData, message: 'findOne' });
 		} catch (error) {
 			next(error);
@@ -36,6 +35,32 @@ class BillController {
 		}
 	};
 
+	public updateBill = async(req: Request, res: Response, next: NextFunction) => {
+		try {
+			const ID: string = req.params.id;
+			const billData: CreateBillDTO = req.body;
+			console.log(req.body) // <- delete afeter fix
+			const updateBillData: Bill = await this.billService.updateBill(ID, billData);
+			console.log(updateBillData) // <- delete after fix
+			res.status(200).json({data: updateBillData, message: "updated"});
+			
+		} catch (err) {
+			next(err);	
+		}
+	};
+
+	public deleteBill = async(req: Request, res: Response, next: NextFunction) =>  {
+		try {
+			const ID: string = req.params.id;
+			const deletedBillData: Bill = await this.billService.deleteBill(ID);
+			res.status(200).json({data: deletedBillData, message:"deleted"});
+		} catch(err) {
+			next(err);
+		}
+	};
+
 };
+
+
 
 export default BillController;

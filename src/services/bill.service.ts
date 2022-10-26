@@ -28,6 +28,24 @@ class BillService {
 		return createBillData;
 	}
 
+	/*TODO: Fix update bill*/
+	public async updateBill(ID: string, billData: CreateBillDTO): Promise<Bill|never> {
+		if (isEmpty(billData)) throw new HTTPException(400, "No bill data");
+
+		const updateBillByID: Bill|null = await this.billModel.findByIdAndUpdate(ID, {billData});
+		console.log(updateBillByID); // <- delete after fix 
+		if(!updateBillByID) throw new HTTPException(404, "Bill not found");
+		return updateBillByID;
+	}
+
+	public async deleteBill(ID: string): Promise<Bill|never> {
+		if(isEmpty(ID)) throw new HTTPException(400, "ID is empty");
+
+		const deleteBill: Bill|null = await this.billModel.findByIdAndDelete(ID)
+		if(!deleteBill) throw new HTTPException(404, "Bill not found");
+		return deleteBill;
+	}
+
 
 };
 

@@ -13,6 +13,7 @@ export class BudgetRoute implements Routes {
 
 	private initializeRoutes() {
 		this.router.get(`${this.path}`, this.budgetController.getBudget);
+		this.router.post(`${this.path}`, this.budgetController.createBudget);
 	}
 };
 

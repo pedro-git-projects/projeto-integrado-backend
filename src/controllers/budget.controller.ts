@@ -1,6 +1,7 @@
 import BudgetService from "../services/budget.service";
 import { NextFunction, Request, Response } from "express";
 import {BudgetManager} from "../interfaces/budget";
+import {CreateBudgetDto} from "../dto/budget.dto";
 
 class BudgetController {
 	public budgetService = new BudgetService();
@@ -13,6 +14,16 @@ class BudgetController {
 			next(err);
 		}
 	};
+
+	public createBudget = async(req: Request, res: Response, next: NextFunction) => {
+		try {
+			const budgetData: CreateBudgetDto = req.body;
+			const createBudgetData: BudgetManager = await this.budgetService.createBudget(budgetData);
+			res.status(201).json({data: createBudgetData, message: "created"});
+		} catch(err) {
+			next(err);
+		}
+	} 
 };
 
 export default BudgetController;

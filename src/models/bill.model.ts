@@ -1,7 +1,8 @@
 import { model, Schema, Document } from 'mongoose';
 import { Bill } from "../interfaces/bill";
 
-const billSchema: Schema = new Schema({
+// export billSchema && use on budget.model
+export const billSchema: Schema = new Schema({
 	title: {
 		type: String,
 		required: true,
@@ -26,5 +27,5 @@ const billSchema: Schema = new Schema({
 	},
 });
 
-const billModel = model<Bill & Document>("bill", billSchema);
-export default billModel;
+export const billModel = model<Bill & Document>("bill", billSchema);
+//export billModel;

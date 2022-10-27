@@ -2,7 +2,7 @@ import { Bill } from "../interfaces/bill";
 import { isEmpty } from "../utils/empty";
 import { CreateBillDTO } from "../dto/bill.dto";
 import {HTTPException} from "../exceptions/HTTPException";
-import billModel from "../models/bill.model";
+import { billModel } from "../models/bill.model";
 import {ReturnDocument} from "mongodb";
 
 class BillService {
@@ -13,7 +13,7 @@ class BillService {
 		return bill;
 	}
 
-	public async findBillByID(ID: string): Promise<Bill> {
+	public async findBillByID(ID: string): Promise<Bill|never> {
 		if (isEmpty(ID)) throw new HTTPException(400, "ID is empty");
 
 		const findBill: Bill|null = await this.billModel.findOne({ _id: ID});
@@ -47,8 +47,6 @@ class BillService {
 		if(!deleteBill) throw new HTTPException(404, "Bill not found");
 		return deleteBill;
 	}
-
-
 };
 
 

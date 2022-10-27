@@ -25,10 +25,11 @@ class BudgetService {
 		return createBudgetData;
 	}
 
-	// public async deleteBudget(ID: string): Promise<BudgetManager|never> {
-	// }
-
-
+	 public async deleteBudget(ID: string): Promise<BudgetManager|never> {
+		 const deleteBudget: BudgetManager|null = await this.budgetModel.findByIdAndDelete(ID);
+		 if(!deleteBudget) throw new HTTPException(409, "Budget Manager does not exist");
+		 return deleteBudget;
+	 }
 
 }
 

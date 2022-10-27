@@ -25,6 +25,13 @@ class BudgetService {
 		return createBudgetData;
 	}
 
+	public async updateBudget(ID: string, budgetData: CreateBudgetDto): Promise<BudgetManager|never> {
+		if (isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
+		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(ID, {budgetData});
+		if(!updateBudget) throw new HTTPException(409, "Budget manager does not exist");
+		return updateBudget;
+	}
+
 	 public async deleteBudget(ID: string): Promise<BudgetManager|never> {
 		 const deleteBudget: BudgetManager|null = await this.budgetModel.findByIdAndDelete(ID);
 		 if(!deleteBudget) throw new HTTPException(409, "Budget Manager does not exist");

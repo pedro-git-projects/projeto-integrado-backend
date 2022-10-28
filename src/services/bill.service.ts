@@ -3,7 +3,7 @@ import { isEmpty } from "../utils/empty";
 import { CreateBillDTO } from "../dto/bill.dto";
 import {HTTPException} from "../exceptions/HTTPException";
 import { billModel } from "../models/bill.model";
-import {ReturnDocument} from "mongodb";
+import {ObjectId, ReturnDocument} from "mongodb";
 
 class BillService {
 	public billModel = billModel;
@@ -33,8 +33,7 @@ class BillService {
 	public async updateBill(ID: string, billData: CreateBillDTO): Promise<Bill|never> {
 		if (isEmpty(billData)) throw new HTTPException(400, "No bill data");
 
-		//const updateBillByID: Bill|null = await this.billModel.findOneAndUpdate({_id: ID}, {billData}, {returnDocument: 'after'});
-		const updateBillByID: Bill|null = await this.billModel.findByIdAndUpdate(ID, {billData}, {returnDocument: 'after'});
+		const updateBillByID: Bill|null = await this.billModel.findOneAndUpdate( {id_: ID}, {...billData}, {returnDocument: "after" });
 		console.log(updateBillByID); // <- delete after fix 
 		if(!updateBillByID) throw new HTTPException(404, "Bill not found");
 		return updateBillByID;

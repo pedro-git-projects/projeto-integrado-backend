@@ -1,10 +1,10 @@
 import express from "express";
 import {Routes} from "./interfaces/routes.interface";
-import { connect, set } from "mongoose";
+import { connect } from "mongoose";
 import {errorMiddleware} from "./middleware/error.middleware";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import {dbConnection} from "./databases";
+import {dbConnection} from "./databases/db";
 
 export class App {
 	public app: express.Application;

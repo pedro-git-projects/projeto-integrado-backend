@@ -1,129 +1,65 @@
-import  request  from "supertest";
+import mongoose from "mongoose";
+import request from "supertest";
 import { App } from "../app";
-import { BudgetManager } from "../interfaces/budget";
-import { BudgetModel } from "../models/budget.model";
-import {BudgetRoute} from "../routes/budget.route";
-import { Bill } from "../internals/bill";
-import { Budget } from "../internals/budget";
-import {CreateBillDTO} from "../dto/bill.dto";
+import BudgetRoute from "../routes/budget.route";
 
 afterAll(async () => {
-	await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
+  await new Promise<void>(resolve => setTimeout(
+    () => resolve(), 500
+  ));
 });
 
-describe('Testing BudgetModel', () => {
-	describe('[GET] /budget', () => {
-		it('response statusCode 200 / findAll', () => {
 
-			const findBudget: BudgetManager = BudgetModel;
-			const budgetRoute = new BudgetRoute(); 
-			const app = new App([budgetRoute]);
+describe('Testing BudgetManager', () => {
+  describe('[GET] /budget', () => {
+    it('response find Budget managers', async () => {
+      const budgetRoute = new BudgetRoute();
+      const budget = budgetRoute.budgetController.budgetService.budgetModel;
 
-			return request(app.getServer())
-			.get(`${budgetRoute.path}`)
-			.expect(200, findBudget.toJSON());
-		});
-	});
-	describe('[GET] /budget/bill/:id', () => {
-		it('response statusCode 200/ findOne', () => {
-			const ID = "l7ghkrl53temg0c84a4";
-			const findBill: Bill = BudgetModel.getBillByID(ID)!; 
-			const budgetRoute = new BudgetRoute();
-			const app = new App([budgetRoute]);
-
-			return request(app.getServer()).
-				get(`${budgetRoute.path}/bill/${ID}`).expect(200, findBill.toJSON())
-		});
-	});
-	describe('[GET] /budget/bills', () => {
-		it('response statusCode 200/ findAllBills', () => {
-			const findAllBills: Bill[] = BudgetModel.getAllBills(); 
-			const budgetRoute = new BudgetRoute();
-			const app = new App([budgetRoute]);
-
-			return request(app.getServer()).
-				get(`${budgetRoute.path}/bills`).expect(200, Budget.billsToJSON(findAllBills));
-		});
-	});
-
-	describe('[GET] /budget/bills/paid', () => {
-		it('response statusCode 200/ findPaidBills', () => {
-			const findPaidBills: Bill[] = BudgetModel.getBillsByPaid(); 
-			const budgetRoute = new BudgetRoute();
-			const app = new App([budgetRoute]);
-
-			return request(app.getServer()).
-				get(`${budgetRoute.path}/bills/paid`).expect(200, Budget.billsToJSON(findPaidBills));
-		});
-	});
-
-	describe('[GET] /budget/bills/pending', () => {
-		it('response statusCode 200/ findPendingBills', () => {
-			const findPendingBills: Bill[] = BudgetModel.getBillsByPending(); 
-			const budgetRoute = new BudgetRoute();
-			const app = new App([budgetRoute]);
-
-			return request(app.getServer()).
-				get(`${budgetRoute.path}/bills/pending`).expect(200, Budget.billsToJSON(findPendingBills));
-		});
-	});
-
-	describe('[GET] /budget/bills/overdue', () => {
-		it('response statusCode 200/ findOverdueBills', () => {
-			const findOverdueBills: Bill[] = BudgetModel.getBillsByOverdue(); 
-			const budgetRoute = new BudgetRoute();
-			const app = new App([budgetRoute]);
-
-			return request(app.getServer()).
-				get(`${budgetRoute.path}/bills/overdue`).expect(200, Budget.billsToJSON(findOverdueBills));
-		});
-	});
-
-	describe('[GET] /budget/balance', () => {
-		it('response statusCode 200/ findBalance', () => {
-			const findBalance: BigInt = BudgetModel.totalBalance; 
-			const findBalanceStr = findBalance.toString()
-			const budgetRoute = new BudgetRoute();
-			const app = new App([budgetRoute]);
-
-			return request(app.getServer()).
-				get(`${budgetRoute.path}/balance`).expect(200, {totalBalance: findBalanceStr});
-		});
-	});
-
-	describe('[POST] /budget/bill/create', () => {
-		it('response statusCode 201 / created', async () => {
-			const billData: CreateBillDTO = {
-				title: "Nova", 
-				cost: "50",
-				frequency: "OneTime",
-				status: "Paid",
-				due: "10-10-2020",
-			};
-
-			const budgetRoute = new BudgetRoute();
-			const app = new App([budgetRoute]);
-			return request(app.getServer()).post(`${budgetRoute.path}/bill/create`).send(billData).expect(201);
-		});
-	});
-
- describe('[PUT] /budget/bill/pay/:id', () => {
-    it('response statusCode 200 / updated', async () => {
-		const id = "l7ghkrl5akl9xk7aana";
-		const budgetRoute = new BudgetRoute();
-		const app = new App([budgetRoute]);
-		const afterBill = BudgetModel.toJSON();
-		return request(app.getServer()).put(`${budgetRoute.path}/bill/pay/${id}`).send(afterBill).expect(200);
+      budget.find = jest.fn().mockReturnValue([
+        {
+          "_id": "635b0d32f1c71632a5570e13",
+          "totalBalance": 2500,
+          "bills": [
+            {
+              "title": "UPDATED",
+              "cost": 190,
+              "frequency": "Recurring",
+              "status": "Pending",
+              "due": "2019-02-11T02:00:00.000Z",
+              "_id": "635b28858a76236a40dbf8b9"
+            },
+            {
+              "title": "IESB",
+              "cost": 400,
+              "frequency": "Recurring",
+              "status": "Pending",
+              "due": "2021-02-11T03:00:00.000Z",
+              "_id": "635b28858a76236a40dbf8ba"
+            },
+            {
+              "title": "Gym",
+              "cost": 80,
+              "frequency": "Recurring",
+              "status": "Paid",
+              "due": "2019-02-11T02:00:00.000Z",
+              "_id": "635b28858a76236a40dbf8bb"
+            },
+            {
+              "title": "Watermelon",
+              "cost": 20,
+              "frequency": "OneTime",
+              "status": "Pending",
+              "due": "2019-02-11T02:00:00.000Z",
+              "_id": "635b28858a76236a40dbf8bc"
+            }
+          ],
+        }
+      ]);
+     
+     (mongoose as any).connect = jest.fn();
+    const app = new App([budgetRoute]);
+    return request(app.getServer()).get(`${budgetRoute.path}`).expect(200);
     });
-  });
-
-describe('[DELETE] /budget/delete/:id', () => {
-		it('response statusCode 200 / deleted', async () => {
-			const id = "l7ghkrl53temg0c84a4";
-			const billToDelete = BudgetModel.getBillByID(id)!;
-			const budgetRoute = new BudgetRoute();
-			const app = new App([budgetRoute]);
-			return request(app.getServer()).delete(`${budgetRoute.path}/bill/delete/${id}`).send(billToDelete.toJSON()).expect(200);
-		});
-	});
- });
+  })
+});

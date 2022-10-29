@@ -1,7 +1,6 @@
 import { model, Schema, Document } from 'mongoose';
 import { Bill } from "../interfaces/bill";
 
-// export billSchema && use on budget.model
 export const billSchema: Schema = new Schema({
 	title: {
 		type: String,

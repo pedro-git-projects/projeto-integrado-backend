@@ -92,6 +92,21 @@ class BudgetService {
 		return deleteBudget;
 	}
 
+	public async deleteBill(BudgetID:string, BillID: string): Promise <BudgetManager|never> {
+		if(isEmpty(BudgetID) || isEmpty(BillID)) throw new HTTPException (400,"incomplete path");
+		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(
+			BudgetID, 
+			{
+				$pull: { bills: { _id: BillID } },
+			}, 
+			{returnOriginal: false}
+		);
+
+		if(!updateBudget) throw new HTTPException(409, "Bill does not exist");
+
+		return updateBudget;
+	}
 }
+
 
 export default BudgetService;

@@ -59,6 +59,18 @@ class BudgetController {
 		}
 	}
 
+	public deleteBill = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const BudgetID: string = req.params.budgetid;
+			const BillID: string = req.params.billid;
+			const removeBillData: BudgetManager = await this.budgetService.deleteBill(BudgetID, BillID)
+			res.status(200).json({data: removeBillData, message:"removed bill"});
+		} catch(err){
+			next(err);
+		}
+		
+	}
+
 };
 
 export default BudgetController;

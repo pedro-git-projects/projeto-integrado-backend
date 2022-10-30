@@ -29,12 +29,10 @@ class BillService {
 		return createBillData;
 	}
 
-	/*TODO: Fix update bill*/
 	public async updateBill(ID: string, billData: CreateBillDTO): Promise<Bill|never> {
 		if (isEmpty(billData)) throw new HTTPException(400, "No bill data");
 
 		const updateBillByID: Bill|null = await this.billModel.findOneAndUpdate( {id_: ID}, {...billData}, {returnDocument: "after" });
-		console.log(updateBillByID); // <- delete after fix 
 		if(!updateBillByID) throw new HTTPException(404, "Bill not found");
 		return updateBillByID;
 	}
@@ -47,7 +45,5 @@ class BillService {
 		return deleteBill;
 	}
 };
-
-
 
 export default BillService;

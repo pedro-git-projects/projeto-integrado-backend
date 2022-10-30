@@ -25,19 +25,72 @@ class BudgetService {
 		return createBudgetData;
 	}
 
+	public async addBalance(ID: string, operation: string, balance: string): Promise<BudgetManager|never> {
+		if(isEmpty(ID) || isEmpty(balance) || isEmpty(operation)) throw new HTTPException(400, "incomplete path");
+
+		const nBalance = Number(balance);
+		if(nBalance == NaN) throw new HTTPException(422, "balance must be numeric");
+
+		let updateBalance: BudgetManager|null = null;
+
+		switch(operation) {
+			case("add"):
+				updateBalance = await this.budgetModel.findByIdAndUpdate(
+					ID,
+					{
+						$inc: {"totalBalance": nBalance}
+					},
+					{
+						returnOriginal: false
+					}
+			);
+			break;
+
+			case("sub"):
+				updateBalance = await this.budgetModel.findByIdAndUpdate(
+					ID,
+					{
+						$inc : {"totalBalance": -nBalance}
+					},
+					{
+						returnOriginal: false
+					}
+			);		
+			break;
+
+			case("set"):
+				updateBalance = await this.budgetModel.findByIdAndUpdate(
+					ID,
+					{
+						$set : {"totalBalance": nBalance}
+					},
+					{
+						returnOriginal: false
+					}
+			);
+			break;
+
+			default:
+				throw new HTTPException(422, `invalid parameter ${operation}`);
+		}
+
+
+		if(!updateBalance) throw new HTTPException(409, "Budget manager does not exist");
+		return updateBalance;
+	}
+
 	public async updateBudget(ID: string, budgetData: CreateBudgetDto): Promise<BudgetManager|never> {
 		if (isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
 		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(ID, {...budgetData}, {returnOriginal: false});
-		console.log(updateBudget);
 		if(!updateBudget) throw new HTTPException(409, "Budget manager does not exist");
 		return updateBudget;
 	}
 
-	 public async deleteBudget(ID: string): Promise<BudgetManager|never> {
-		 const deleteBudget: BudgetManager|null = await this.budgetModel.findByIdAndDelete(ID);
-		 if(!deleteBudget) throw new HTTPException(409, "Budget Manager does not exist");
-		 return deleteBudget;
-	 }
+	public async deleteBudget(ID: string): Promise<BudgetManager|never> {
+		const deleteBudget: BudgetManager|null = await this.budgetModel.findByIdAndDelete(ID);
+		if(!deleteBudget) throw new HTTPException(409, "Budget Manager does not exist");
+		return deleteBudget;
+	}
 
 }
 

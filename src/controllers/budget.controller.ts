@@ -41,7 +41,7 @@ class BudgetController {
 			const ID: string = req.params.id;
 			const operation: string = req.params.operation;
 			const balance: string = req.params.balance;
-			const balanceBudgetData: BudgetManager = await this.budgetService.addBalance(ID, operation, balance);
+			const balanceBudgetData: BudgetManager = await this.budgetService.updateBalance(ID, operation, balance);
 			res.status(200).json({data: balanceBudgetData, message:"added"});
 		} catch(err) {
 			next(err);

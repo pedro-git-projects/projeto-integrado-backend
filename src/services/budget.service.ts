@@ -25,7 +25,7 @@ class BudgetService {
 		return createBudgetData;
 	}
 
-	public async addBalance(ID: string, operation: string, balance: string): Promise<BudgetManager|never> {
+	public async updateBalance(ID: string, operation: string, balance: string): Promise<BudgetManager|never> {
 		if(isEmpty(ID) || isEmpty(balance) || isEmpty(operation)) throw new HTTPException(400, "incomplete path");
 
 		const nBalance = Number(balance);

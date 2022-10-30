@@ -19,11 +19,21 @@ class BillController {
 		try {
 			const ID: string = req.params.id;
 			const findOneBillData: Bill = await this.billService.findBillByID(ID);
-			res.status(200).json({ data: findOneBillData, message: 'findOne' });
+			res.status(200).json({ data: findOneBillData, message: "findOne" });
 		} catch (error) {
 			next(error);
 		}
 	};
+
+	public getBillByStatus = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const status: string = req.params.status;
+			const findBillData: Bill|Bill[] = await this.billService.findBillByStatus(status);
+			res.status(200).json({data: findBillData, message: "findByStatus"});
+		} catch(err) {
+			next(err);
+		}
+	}
 
 	public createBill = async(req: Request, res: Response, next: NextFunction) =>  {
 		try {

@@ -3,6 +3,7 @@ import { isEmpty } from "../utils/empty";
 import { CreateBillDTO } from "../dto/bill.dto";
 import {HTTPException} from "../exceptions/HTTPException";
 import { billModel } from "../models/bill.model";
+import {capitalizeFirst, decapitalizeFirst} from "../utils/capitalize";
 import {ObjectId, ReturnDocument} from "mongodb";
 
 class BillService {
@@ -19,6 +20,19 @@ class BillService {
 		const findBill: Bill|null = await this.billModel.findOne({ _id: ID});
 		if (!findBill) throw new HTTPException(409, "Bill doesn't exist");
 
+		return findBill;
+	}
+
+	public async findBillByStatus(status: string): Promise<Bill|Bill[]|never> {
+		if(isEmpty(status)) throw new HTTPException(400, "status is empty");
+
+		status = capitalizeFirst(status);
+		if(status !== "Paid" && status !== "Pending" && status !== "Overdue") throw new HTTPException(422, "invalid status");
+		
+		const findBill: Bill|Bill[]|null = await this.billModel.find({status: status});
+
+		status = decapitalizeFirst(status);
+		if(!findBill) throw new HTTPException(409, `no ${status} bills`);
 		return findBill;
 	}
 

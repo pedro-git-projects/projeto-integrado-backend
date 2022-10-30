@@ -1,111 +1,112 @@
-import {BudgetManager} from "../internals/budget";
-import { BudgetModel } from "../models/budget.model";
-import { HTTPException} from "../exceptions/HTTPException";
-import { Bill } from "../internals/bill";
-import { JSONBill } from "../internals/bill";
-import { valueStr } from "../internals/budget";
+import { BudgetManager } from "../interfaces/budget";
+import { HTTPException } from "../exceptions/HTTPException";
+import { isEmpty } from "../utils/empty";
+import budgetModel from "../models/budget.model";
+import {CreateBudgetDto} from "../dto/budget.dto";
 
-export class BudgetService {
-	public budget = BudgetModel;
+class BudgetService {
+	public budgetModel = budgetModel;
 
-	public async findAll(): Promise<BudgetManager> {
-		const budget: BudgetManager = this.budget;
+	public async findBudget(): Promise<BudgetManager[]> {
+		const budget: BudgetManager[] = await this.budgetModel.find();
 		return budget;
-	}
-
-	public async findAllBills(): Promise<Bill[]> {
-		const budget: BudgetManager = this.budget;
-		const bills = budget.getAllBills();
-		return bills; }
-
-	public async findBillByID(id:string): Promise<Bill|never > {
-		const budget: BudgetManager = this.budget;
-		const byID = budget.getBillByID(id);
-		if(byID === undefined) throw new HTTPException(404, "Bill not found"); 
-		return byID;
-	}
-
-	public async findBillsByPaid(): Promise<Bill[]|never> {
-		const budget: BudgetManager = this.budget;
-		const paid: Bill[] = budget.getBillsByPaid();
-		if(paid.length === 0) throw new HTTPException(404, "No paid bills");
-		return paid;
 	} 
 
-	public async findBillsByPending(): Promise<Bill[]|never>{
-		const budget: BudgetManager = this.budget;
-		const pending: Bill[] = budget.getBillsByPending();
-		if(pending.length === 0) throw new HTTPException(404, "No pending bills");
-		return pending;
-
+	public async findBudgetByID(ID: string): Promise<BudgetManager|never> {
+		if (isEmpty(ID)) throw new HTTPException(400, "ID is empty");
+		const findBudget: BudgetManager|null = await this.budgetModel.findOne({_id: ID}); 
+		if(!findBudget) throw new HTTPException(409, "Bill does't exist");
+		return findBudget;
 	}
 
-	public async findBillsByOverdue(): Promise<Bill[]|never> {
-		const budget: BudgetManager = this.budget;
-		const overdue: Bill[] = budget.getBillsByOverdue();
-		if(overdue.length === 0) throw new HTTPException(404, "No overdue bills");
-		return overdue;
-	} 
-
-	public async findTotalBalance(): Promise<BigInt|never> {
-		const budget: BudgetManager = this.budget; 
-		const balance = budget.totalBalance;
-		return balance;
+	public async createBudget(budgetData: CreateBudgetDto): Promise<BudgetManager> {
+		if(isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
+		const createBudgetData: BudgetManager = await this.budgetModel.create({...budgetData});
+		return createBudgetData;
 	}
 
-	public async createBill(json:string): Promise<Bill|never> {
-		const b = json as unknown as JSONBill; 
-		try {
-			const bill = Bill.ParseJSONStr(b);
-			this.budget.addBill(bill);
-			return bill;		
-		} catch(err) {
-			throw new HTTPException(422, "Unprocessable entity");
+	public async updateBalance(ID: string, operation: string, balance: string): Promise<BudgetManager|never> {
+		if(isEmpty(ID) || isEmpty(balance) || isEmpty(operation)) throw new HTTPException(400, "incomplete path");
+
+		const nBalance = Number(balance);
+		if(nBalance == NaN) throw new HTTPException(422, "balance must be numeric");
+
+		let updateBalance: BudgetManager|null = null;
+
+		switch(operation) {
+			case("add"):
+				updateBalance = await this.budgetModel.findByIdAndUpdate(
+					ID,
+					{
+						$inc: {"totalBalance": nBalance}
+					},
+					{
+						returnOriginal: false
+					}
+			);
+			break;
+
+			case("sub"):
+				updateBalance = await this.budgetModel.findByIdAndUpdate(
+					ID,
+					{
+						$inc : {"totalBalance": -nBalance}
+					},
+					{
+						returnOriginal: false
+					}
+			);		
+			break;
+
+			case("set"):
+				updateBalance = await this.budgetModel.findByIdAndUpdate(
+					ID,
+					{
+						$set : {"totalBalance": nBalance}
+					},
+					{
+						returnOriginal: false
+					}
+			);
+			break;
+
+			default:
+				throw new HTTPException(422, `invalid parameter ${operation}`);
 		}
-	} 
 
-	public async deleteBill(id:string): Promise<Bill|never> {
-		const budget: BudgetManager = this.budget;
-		const byID = budget.getBillByID(id);
-		if(byID === undefined) { 
-			throw new HTTPException(404, "Bill not found");
-		} else {
-			budget.removeBill(byID);
-			return byID;
-		} 
+
+		if(!updateBalance) throw new HTTPException(409, "Budget manager does not exist");
+		return updateBalance;
 	}
 
-	public async addMoney(value: string): Promise<BudgetManager|never> {
-		const budget = this.budget;
-		const v = value as unknown as valueStr; 
-		const numeric: bigint = BigInt(v.value);	
-		if(numeric === null || numeric === undefined) {
-			throw new HTTPException(422, "Unprocessable entity")
-		}
-		budget.addMoney(numeric);
-		return budget;
+	public async updateBudget(ID: string, budgetData: CreateBudgetDto): Promise<BudgetManager|never> {
+		if (isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
+		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(ID, {...budgetData}, {returnOriginal: false});
+		if(!updateBudget) throw new HTTPException(409, "Budget manager does not exist");
+		return updateBudget;
 	}
 
-	public async removeMoney(value: string): Promise<BudgetManager|never> {
-		const budget = this.budget;
-		const v = value as unknown as valueStr; 
-		const numeric: bigint = BigInt(v.value);	
-		if(numeric === null || numeric === undefined) {
-			throw new HTTPException(422, "Unprocessable entity")
-		}
-		budget.removeMoney(numeric);
-		return budget;
+	public async deleteBudget(ID: string): Promise<BudgetManager|never> {
+		const deleteBudget: BudgetManager|null = await this.budgetModel.findByIdAndDelete(ID);
+		if(!deleteBudget) throw new HTTPException(409, "Budget Manager does not exist");
+		return deleteBudget;
 	}
 
-	public async payBill(id: string): Promise<BudgetManager|never> {
-		const budget = this.budget;
-		const billToPay = budget.getBillByID(id);
-		if(billToPay === undefined) {
-			throw new HTTPException(404, "Bill not found");
-		} else {
-			budget.payBillById(id);
-			return budget;
-		}
-	}
+	public async deleteBill(BudgetID:string, BillID: string): Promise <BudgetManager|never> {
+		if(isEmpty(BudgetID) || isEmpty(BillID)) throw new HTTPException (400,"incomplete path");
+		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(
+			BudgetID, 
+			{
+				$pull: { bills: { _id: BillID } },
+			}, 
+			{returnOriginal: false}
+		);
 
-};
+		if(!updateBudget) throw new HTTPException(409, "Bill does not exist");
+
+		return updateBudget;
+	}
+}
+
+
+export default BudgetService;

@@ -5,6 +5,8 @@
 		"outDir": "dist",
 		"sourceMap": true,
 		"strict": true,
+		"experimentalDecorators": true,
+    	"emitDecoratorMetadata": true,
 		"target": "ESNext",
 		"esModuleInterop": true,
 		"strictPropertyInitialization": false

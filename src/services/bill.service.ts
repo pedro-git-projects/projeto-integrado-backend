@@ -36,6 +36,25 @@ class BillService {
 		return findBill;
 	}
 
+	public async findBillByFrequency(frequency: string): Promise<Bill|Bill[]|never> {
+		if(isEmpty(frequency)) throw new HTTPException(400, "frequency is empty");
+
+		switch(frequency) {
+			case("onetime"):
+				frequency = "OneTime";
+				break;
+			case("recurring"):
+				frequency = capitalizeFirst(frequency);
+				break;
+			default:
+				throw new HTTPException(422, "invalid frequency");
+		}
+
+		const findBill: Bill|Bill[]|null = await this.billModel.find({frequency: frequency});
+		if(!findBill) throw new HTTPException(409, "not found");
+		return findBill;
+	}
+
 	public async createBill(billData: CreateBillDTO): Promise<Bill> {
 		if (isEmpty(billData)) throw new HTTPException(400, "No bill data");
 		

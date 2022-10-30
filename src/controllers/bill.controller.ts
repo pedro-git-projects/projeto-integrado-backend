@@ -35,6 +35,16 @@ class BillController {
 		}
 	}
 
+	public getBillByFrequency = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const frequency: string = req.params.frequency;
+			const findBillData: Bill|Bill[] = await this.billService.findBillByFrequency(frequency);
+			res.status(200).json({data: findBillData, message: "findBillByFrequency"});
+		} catch(err) {
+			next(err);
+		}
+	}
+
 	public createBill = async(req: Request, res: Response, next: NextFunction) =>  {
 		try {
 			const billData: CreateBillDTO = req.body;

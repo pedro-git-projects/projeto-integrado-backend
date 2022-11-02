@@ -2,9 +2,7 @@ import BudgetService from "../services/budget.service";
 import { NextFunction, Request, Response } from "express";
 import {BudgetManager} from "../interfaces/budget";
 import {CreateBudgetDto} from "../dto/budget.dto";
-import {capitalizeFirst} from "../utils/capitalize";
-import {fileURLToPath} from "url";
-import {HTTPException} from "../exceptions/HTTPException";
+import {capitalizeFirst, camelCaseFrequency} from "../utils/capitalize";
 
 class BudgetController {
 	public budgetService = new BudgetService();
@@ -27,7 +25,17 @@ class BudgetController {
 		} catch(err) {
 			next(err);
 		}
+	};
 
+	public getBillsByFrequency = async(req: Request, res: Response, next: NextFunction) => {
+		try {
+			const budgetID: string = req.params.id;
+			const frequency: string = camelCaseFrequency(req.params.frequency);
+			const findBillData: BudgetManager|BudgetManager[] = await this.budgetService.findBudgetByFrequency(budgetID, frequency)
+			res.status(200).json({data: findBillData, message: "by frequency"});
+		} catch(err) {
+			next(err);
+		}
 	};
 
 	public createBudget = async(req: Request, res: Response, next: NextFunction) => {

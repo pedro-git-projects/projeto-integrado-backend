@@ -36,9 +36,33 @@ class BudgetService {
 				}
 			});
 
-		if(!selectedBills) throw new HTTPException(400, `bill with status ${m_status} does not exist`);
-		return selectedBills;
+			// Fix empty array validation
+			if(!selectedBills) throw new HTTPException(400, `bill with status ${m_status} does not exist`);
+			return selectedBills;
 	}
+
+	public async findBudgetByFrequency(budgetID: string, frequency: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if(isEmpty(budgetID || frequency)) throw new HTTPException(400, "incomplete path"); 
+		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
+			{
+				_id: budgetID
+			}, {
+				bills: {
+					$filter: {
+						input: "$bills",
+						as: "bill", 
+						cond: {
+							$eq:["$$bill.frequency", frequency]
+						}
+					}
+				}
+			});
+
+			// Fix empty array validation
+			if(!selectedBills) throw new HTTPException(400, `bill with status ${frequency} does not exist`);
+			return selectedBills;
+	}
+
 
 	public async createBudget(budgetData: CreateBudgetDto): Promise<BudgetManager> {
 		if(isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");

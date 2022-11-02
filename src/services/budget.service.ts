@@ -19,7 +19,7 @@ class BudgetService {
 		return findBudget;
 	}
 
-	public async findBudgetByStatus(budgetID: string, _status: string): Promise<BudgetManager|BudgetManager[]|never> {
+	public async findBillByStatus(budgetID: string, _status: string): Promise<BudgetManager|BudgetManager[]|never> {
 		if(isEmpty(budgetID || _status)) throw new HTTPException(400, "incomplete path"); 
 		if(_status !== "Paid" && _status !== "Pending" && _status !== "Overdue") throw new HTTPException(422, `status ${_status} is not valid`);
 
@@ -38,12 +38,10 @@ class BudgetService {
 				}
 			});
 
-			// Fix empty array validation
-			if(!selectedBills) throw new HTTPException(400, `bill with status ${_status} does not exist`);
 			return selectedBills;
 	}
 
-	public async findBudgetByFrequency(budgetID: string, frequency: string): Promise<BudgetManager|BudgetManager[]|never> {
+	public async findBillByFrequency(budgetID: string, frequency: string): Promise<BudgetManager|BudgetManager[]|never> {
 		if(isEmpty(budgetID || frequency)) throw new HTTPException(400, "incomplete path"); 
 		if(frequency !== "OneTime" && frequency !== "Recurring") throw new HTTPException(422, `frequency ${frequency} is not valid`);
 		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
@@ -61,8 +59,6 @@ class BudgetService {
 				}
 			});
 
-			// Fix empty array validation
-			if(!selectedBills) throw new HTTPException(400, `bill with status ${frequency} does not exist`);
 			return selectedBills;
 	}
 
@@ -132,6 +128,25 @@ class BudgetService {
 		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(ID, {...budgetData}, {returnOriginal: false});
 		if(!updateBudget) throw new HTTPException(409, "Budget manager does not exist");
 		return updateBudget;
+	}
+
+	// TODO:
+	public async payBillByID(budgetID: string, billID: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if(isEmpty(budgetID) || isEmpty(billID)) throw new HTTPException(400, "incomplete path"); 
+		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
+			{
+				_id: budgetID
+			}, {
+				bills: {
+					$elemMatch: {
+						_id: billID
+					}
+				}	
+				
+			});
+			console.log(selectedBills);
+			if(!selectedBills) throw new HTTPException(409, "does not exist");
+			return selectedBills;
 	}
 
 	public async deleteBudget(ID: string): Promise<BudgetManager|never> {

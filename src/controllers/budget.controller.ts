@@ -20,8 +20,8 @@ class BudgetController {
 	public getBillsByStatus = async(req: Request, res: Response, next: NextFunction) => {
 		try {
 			const budgetID: string = req.params.id;
-			const status: string = capitalizeFirst(req.params.status);
-			const findBillData: BudgetManager|BudgetManager[] = await this.budgetService.findBudgetByStatus(budgetID, status)
+			const _status: string = capitalizeFirst(req.params.status);
+			const findBillData: BudgetManager|BudgetManager[] = await this.budgetService.findBillByStatus(budgetID, _status)
 			res.status(200).json({data: findBillData, message: "by status"});
 		} catch(err) {
 			next(err);
@@ -32,7 +32,7 @@ class BudgetController {
 		try {
 			const budgetID: string = req.params.id;
 			const frequency: string = camelCaseFrequency(req.params.frequency);
-			const findBillData: BudgetManager|BudgetManager[] = await this.budgetService.findBudgetByFrequency(budgetID, frequency)
+			const findBillData: BudgetManager|BudgetManager[] = await this.budgetService.findBillByFrequency(budgetID, frequency)
 			res.status(200).json({data: findBillData, message: "by frequency"});
 		} catch(err) {
 			next(err);
@@ -55,6 +55,17 @@ class BudgetController {
 			const budgetData: CreateBudgetDto = req.body;
 			const updateBudgetData: BudgetManager = await this.budgetService.updateBudget(ID, budgetData);
 			res.status(200).json({data: updateBudgetData, message: "updated"});
+		} catch(err) {
+			next(err);
+		}
+	}
+
+	public payBillByID = async(req: Request, res: Response, next: NextFunction) => {
+		try {
+			const budgetID: string = req.params.budgetid;
+			const billID: string = req.params.billid;
+			const payBillData = await this.budgetService.payBillByID(budgetID, billID);
+			res.status(200).json({data: payBillData, message:"paid"});
 		} catch(err) {
 			next(err);
 		}

@@ -17,6 +17,7 @@ export class BudgetRoute implements Routes {
 		this.router.get(`${this.path}/:id/frequency/:frequency`, this.budgetController.getBillsByFrequency);
 		this.router.post(`${this.path}`, this.budgetController.createBudget);
 		this.router.put(`${this.path}/:id`, this.budgetController.updateBudget);
+		this.router.put(`${this.path}/:budgetid/pay/:billid`, this.budgetController.payBillByID);
 		this.router.put(`${this.path}/:id/:operation/:balance`, this.budgetController.updateBalance);
 		this.router.delete(`${this.path}/:budgetid/:billid`, this.budgetController.deleteBill);
 		this.router.delete(`${this.path}/:id`, this.budgetController.deleteBudget);

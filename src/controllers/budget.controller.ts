@@ -2,6 +2,9 @@ import BudgetService from "../services/budget.service";
 import { NextFunction, Request, Response } from "express";
 import {BudgetManager} from "../interfaces/budget";
 import {CreateBudgetDto} from "../dto/budget.dto";
+import {capitalizeFirst} from "../utils/capitalize";
+import {fileURLToPath} from "url";
+import {HTTPException} from "../exceptions/HTTPException";
 
 class BudgetController {
 	public budgetService = new BudgetService();
@@ -13,6 +16,18 @@ class BudgetController {
 		} catch(err){
 			next(err);
 		}
+	};
+
+	public getBillsByStatus = async(req: Request, res: Response, next: NextFunction) => {
+		try {
+			const budgetID: string = req.params.id;
+			const status: string = capitalizeFirst(req.params.status);
+			const findBillData: BudgetManager|BudgetManager[] = await this.budgetService.findBudgetByStatus(budgetID, status)
+			res.status(200).json({data: findBillData, message: "by status"});
+		} catch(err) {
+			next(err);
+		}
+
 	};
 
 	public createBudget = async(req: Request, res: Response, next: NextFunction) => {

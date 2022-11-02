@@ -13,10 +13,31 @@ class BudgetService {
 	} 
 
 	public async findBudgetByID(ID: string): Promise<BudgetManager|never> {
-		if (isEmpty(ID)) throw new HTTPException(400, "ID is empty");
+		if(isEmpty(ID)) throw new HTTPException(400, "ID is empty");
 		const findBudget: BudgetManager|null = await this.budgetModel.findOne({_id: ID}); 
 		if(!findBudget) throw new HTTPException(409, "Bill does't exist");
 		return findBudget;
+	}
+
+	public async findBudgetByStatus(budgetID: string, m_status: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if(isEmpty(budgetID || m_status)) throw new HTTPException(400, "incomplete path"); 
+		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
+			{
+				_id: budgetID
+			}, {
+				bills: {
+					$filter: {
+						input: "$bills",
+						as: "bill", 
+						cond: {
+							$eq:["$$bill.status", m_status]
+						}
+					}
+				}
+			});
+
+		if(!selectedBills) throw new HTTPException(400, `bill with status ${m_status} does not exist`);
+		return selectedBills;
 	}
 
 	public async createBudget(budgetData: CreateBudgetDto): Promise<BudgetManager> {

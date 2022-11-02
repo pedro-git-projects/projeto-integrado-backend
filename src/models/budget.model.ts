@@ -1,5 +1,6 @@
 import { model, Schema, Document } from 'mongoose';
 import {BudgetManager} from '../interfaces/budget';
+import {Bill} from "../interfaces/bill";
 import {billSchema} from './bill.model';
 
 const budgetSchema: Schema = new Schema({
@@ -9,7 +10,7 @@ const budgetSchema: Schema = new Schema({
 	bills: {
 		type: [billSchema],
 	}
-});
+}, {typeKey: "$type"}); 
 
-const budgetModel = model<BudgetManager & Document>("budget", budgetSchema);
+const budgetModel = model<BudgetManager & Bill &  Document>("budget", budgetSchema);
 export default budgetModel;

@@ -13,6 +13,7 @@ export class BudgetRoute implements Routes {
 
 	private initializeRoutes() {
 		this.router.get(`${this.path}`, this.budgetController.getBudget);
+		this.router.get(`${this.path}/:id/:status`, this.budgetController.getBillsByStatus);
 		this.router.post(`${this.path}`, this.budgetController.createBudget);
 		this.router.put(`${this.path}/:id`, this.budgetController.updateBudget);
 		this.router.put(`${this.path}/:id/:operation/:balance`, this.budgetController.updateBalance);

@@ -2,7 +2,8 @@ import BudgetService from "../services/budget.service";
 import { NextFunction, Request, Response } from "express";
 import {BudgetManager} from "../interfaces/budget";
 import {CreateBudgetDto} from "../dto/budget.dto";
-import {capitalizeFirst, camelCaseFrequency} from "../utils/capitalize";
+import {capitalizeFirst} from "../utils/capitalize";
+import {camelCaseFrequency} from "../interfaces/frequency.enum";
 
 class BudgetController {
 	public budgetService = new BudgetService();

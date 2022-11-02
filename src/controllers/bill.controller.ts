@@ -2,6 +2,7 @@ import BillService from "../services/bill.service";
 import { NextFunction, Request, Response } from "express";
 import {Bill} from "../interfaces/bill";
 import { CreateBillDTO } from "../dto/bill.dto";
+import {HTTPException} from "../exceptions/HTTPException";
 
 class BillController {
 	public billService = new BillService();

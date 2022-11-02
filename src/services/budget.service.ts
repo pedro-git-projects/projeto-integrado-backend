@@ -19,8 +19,10 @@ class BudgetService {
 		return findBudget;
 	}
 
-	public async findBudgetByStatus(budgetID: string, m_status: string): Promise<BudgetManager|BudgetManager[]|never> {
-		if(isEmpty(budgetID || m_status)) throw new HTTPException(400, "incomplete path"); 
+	public async findBudgetByStatus(budgetID: string, _status: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if(isEmpty(budgetID || _status)) throw new HTTPException(400, "incomplete path"); 
+		if(_status !== "Paid" && _status !== "Pending" && _status !== "Overdue") throw new HTTPException(422, `status ${_status} is not valid`);
+
 		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
 			{
 				_id: budgetID
@@ -30,19 +32,20 @@ class BudgetService {
 						input: "$bills",
 						as: "bill", 
 						cond: {
-							$eq:["$$bill.status", m_status]
+							$eq:["$$bill.status", _status]
 						}
 					}
 				}
 			});
 
 			// Fix empty array validation
-			if(!selectedBills) throw new HTTPException(400, `bill with status ${m_status} does not exist`);
+			if(!selectedBills) throw new HTTPException(400, `bill with status ${_status} does not exist`);
 			return selectedBills;
 	}
 
 	public async findBudgetByFrequency(budgetID: string, frequency: string): Promise<BudgetManager|BudgetManager[]|never> {
 		if(isEmpty(budgetID || frequency)) throw new HTTPException(400, "incomplete path"); 
+		if(frequency !== "OneTime" && frequency !== "Recurring") throw new HTTPException(422, `frequency ${frequency} is not valid`);
 		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
 			{
 				_id: budgetID

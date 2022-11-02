@@ -80,11 +80,9 @@ class BudgetService {
 		switch(operation) {
 			case("add"):
 				updateBalance = await this.budgetModel.findByIdAndUpdate(
-					ID,
-					{
+					ID, {
 						$inc: {"totalBalance": nBalance}
-					},
-					{
+					}, {
 						returnOriginal: false
 					}
 			);
@@ -92,11 +90,9 @@ class BudgetService {
 
 			case("sub"):
 				updateBalance = await this.budgetModel.findByIdAndUpdate(
-					ID,
-					{
+					ID, {
 						$inc : {"totalBalance": -nBalance}
-					},
-					{
+					}, {
 						returnOriginal: false
 					}
 			);		
@@ -104,11 +100,9 @@ class BudgetService {
 
 			case("set"):
 				updateBalance = await this.budgetModel.findByIdAndUpdate(
-					ID,
-					{
+					ID, {
 						$set : {"totalBalance": nBalance}
-					},
-					{
+					}, {
 						returnOriginal: false
 					}
 			);
@@ -142,7 +136,7 @@ class BudgetService {
 						_id: billID
 					}
 				}	
-				
+
 			});
 			console.log(selectedBills);
 			if(!selectedBills) throw new HTTPException(409, "does not exist");
@@ -158,8 +152,7 @@ class BudgetService {
 	public async deleteBill(BudgetID:string, BillID: string): Promise <BudgetManager|never> {
 		if(isEmpty(BudgetID) || isEmpty(BillID)) throw new HTTPException (400,"incomplete path");
 		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(
-			BudgetID, 
-			{
+			BudgetID, {
 				$pull: { bills: { _id: BillID } },
 			}, 
 			{returnOriginal: false}

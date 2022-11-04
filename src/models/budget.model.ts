@@ -12,5 +12,8 @@ const budgetSchema: Schema = new Schema({
 	}
 }, {typeKey: "$type"}); 
 
+budgetSchema.pre('updateOne', () => {
+});
+
 const budgetModel = model<BudgetManager & Bill &  Document>("budget", budgetSchema);
 export default budgetModel;

@@ -3,6 +3,8 @@ import { HTTPException } from "../exceptions/HTTPException";
 import { isEmpty } from "../utils/empty";
 import budgetModel from "../models/budget.model";
 import {CreateBudgetDto} from "../dto/budget.dto";
+import {ObjectId} from "mongodb";
+import {Bill} from "../interfaces/bill";
 
 class BudgetService {
 	public budgetModel = budgetModel;
@@ -60,6 +62,27 @@ class BudgetService {
 			});
 
 			return selectedBills;
+	}
+
+	public async getBillByTitle(budgetID: string, title: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if(isEmpty(budgetID) || isEmpty(title)) throw new HTTPException(400, "incomplete path"); 
+		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
+			{
+				_id: budgetID
+			}, {
+				bills: {
+					$filter: {
+						input: "$bills",
+						as: "bill", 
+						cond: {
+							$eq:["$$bill.title", title]
+						}
+					}
+				} 
+			}	
+		);
+		if(!selectedBills) throw new HTTPException(409, "does not exist");
+		return selectedBills;
 	}
 
 
@@ -125,22 +148,55 @@ class BudgetService {
 	}
 
 	// TODO:
-	public async payBillByID(budgetID: string, billID: string): Promise<BudgetManager|BudgetManager[]|never> {
-		if(isEmpty(budgetID) || isEmpty(billID)) throw new HTTPException(400, "incomplete path"); 
-		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
-			{
-				_id: budgetID
-			}, {
-				bills: {
-					$elemMatch: {
-						_id: billID
-					}
-				}	
+	// public async payBillByID(budgetID: string, billID: string): Promise<BudgetManager|BudgetManager[]|never> {
+	// 	if(isEmpty(budgetID || billID)) throw new HTTPException(400, "incomplete path"); 
 
-			});
-			console.log(selectedBills);
-			if(!selectedBills) throw new HTTPException(409, "does not exist");
-			return selectedBills;
+	// 	const selectedBudget: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
+	// 		{
+	// 			_id: budgetID
+	// 		});
+
+	// 		return selectedBudget;
+	// }
+
+	public async payBillByID(budgetID: string, billID: string): Promise<BudgetManager|never> {
+		if(isEmpty(budgetID) || isEmpty(billID)) throw new HTTPException(400, "incomplete path"); 
+		const selectedBudget: BudgetManager|null = await this.budgetModel.findOne(
+			{
+				_id: budgetID,
+			}, {
+				totalBalance: 1,
+				bills: {
+					$filter: {
+						input: "$bills",
+						as: "bill", 
+						cond: {
+							$eq:["$$bill._id", new ObjectId(billID)]
+						}
+					}
+				}
+			}
+		).lean();
+
+
+		if(!selectedBudget) throw new HTTPException(404, "not found");
+
+		const selectedBillCost: number = selectedBudget.bills[0]["cost"];
+
+		const updateBudget: BudgetManager|null = await this.budgetModel.findOneAndUpdate(
+			{_id: budgetID},
+			{
+				$inc: {
+					"totalBalance": - selectedBillCost 
+				} 
+			},
+			{
+				returnOriginal: false
+			}
+		);
+
+		if(!updateBudget) throw new HTTPException(409, "does not exist");
+		return updateBudget;
 	}
 
 	public async deleteBudget(ID: string): Promise<BudgetManager|never> {

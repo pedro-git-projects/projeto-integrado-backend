@@ -2,6 +2,6 @@ import { Bill } from "./bill";
 
 export interface BudgetManager {
 	_id?: string,
-	_totalBalance: number;
+	totalBalance: number;
 	bills: Bill[];
 }

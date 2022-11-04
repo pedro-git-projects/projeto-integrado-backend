@@ -178,10 +178,16 @@ class BudgetService {
 			}
 		).lean();
 
-
 		if(!selectedBudget) throw new HTTPException(404, "not found");
 
+		const currentBalance: number = selectedBudget["totalBalance"];
 		const selectedBillCost: number = selectedBudget.bills[0]["cost"];
+
+		if(selectedBillCost > currentBalance) throw new HTTPException(422, "Not enough funds");
+
+		const selectedBillStatus: string = selectedBudget.bills[0]["status"];
+
+		if (selectedBillStatus !== "Pending") throw new HTTPException(422, "Bill is not pending");
 
 		const updateBudget: BudgetManager|null = await this.budgetModel.findOneAndUpdate(
 			{_id: budgetID},

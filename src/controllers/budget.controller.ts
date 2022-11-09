@@ -48,6 +48,17 @@ class BudgetController {
 		}
 	}
 
+	public payBill = async(req: Request, res: Response, next: NextFunction) => {
+		try {
+			const budgetID: string = req.params.budgetid;
+			const billID: string = req.params.billid;
+			const payBillData: BudgetManager = await this.budgetService.payBill(budgetID, billID);
+			res.status(200).json({data: payBillData, message: "paid"});
+		} catch(err) {
+			next(err);
+		}
+	}
+
 
 	public deleteBudget = async(req: Request, res: Response, next: NextFunction) => {
 		try {

@@ -3,6 +3,7 @@ import { HTTPException } from "../exceptions/HTTPException";
 import { isEmpty } from "../utils/empty";
 import budgetModel from "../models/budget.model";
 import {CreateBudgetDto} from "../dto/budget.dto";
+import {Status} from "../interfaces/status.enum";
 
 class BudgetService {
 	public budgetModel = budgetModel;
@@ -23,6 +24,46 @@ class BudgetService {
 		if(isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
 		const createBudgetData: BudgetManager = await this.budgetModel.create({...budgetData});
 		return createBudgetData;
+	}
+
+	public async payBill(budgetID: string, billID: string): Promise<BudgetManager> {
+		if(isEmpty(budgetID) || isEmpty(billID)) throw new HTTPException(400,"incomplete path");
+
+		const selectedBudget = await budgetModel.findOne({_id: budgetID});
+		if(!selectedBudget) throw new HTTPException(404, "not found");
+
+		const selectedBills = selectedBudget?.bills;
+		console.log(selectedBills);
+		if(!selectedBills) throw new HTTPException(404, "not found");
+
+		const selectedBill = selectedBills.find(el => {
+			return el._id == billID;
+		});
+		if(!selectedBill) throw new HTTPException(404, "not found");
+
+		const selectedBillCost = selectedBill.cost; 
+		console.log(selectedBillCost)
+		
+		if (selectedBill.status == Status.Paid) throw new HTTPException(422, "bill already paid");
+		selectedBill.status = Status.Paid;
+
+		const updated = await selectedBudget.save();
+		if(!updated) throw new HTTPException(409, "conflict");
+
+		const updateBalance: BudgetManager|null = await this.budgetModel.findOneAndUpdate(
+			{_id: budgetID},
+			{
+				$inc: {
+					"totalBalance": - selectedBillCost 
+				} 
+			},
+			{
+				returnOriginal: false
+			}
+		);
+
+		if(!updateBalance) throw new HTTPException(409, "does not exist");
+		return updateBalance;
 	}
 
 	public async updateBalance(ID: string, operation: string, balance: string): Promise<BudgetManager|never> {
@@ -107,6 +148,5 @@ class BudgetService {
 		return updateBudget;
 	}
 }
-
 
 export default BudgetService;

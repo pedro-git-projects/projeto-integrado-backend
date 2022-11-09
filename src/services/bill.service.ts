@@ -4,7 +4,6 @@ import { CreateBillDTO } from "../dto/bill.dto";
 import {HTTPException} from "../exceptions/HTTPException";
 import { billModel } from "../models/bill.model";
 import {capitalizeFirst, decapitalizeFirst} from "../utils/capitalize";
-import {ObjectId, ReturnDocument} from "mongodb";
 
 class BillService {
 	public billModel = billModel;

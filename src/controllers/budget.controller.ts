@@ -11,8 +11,18 @@ class BudgetController {
 	public getBudget = async(req: Request, res: Response, next: NextFunction) => {
 		try {
 			const findBudgetData: BudgetManager[] = await this.budgetService.findBudget();
-			res.status(200).json({ data: findBudgetData, message: "findBudget" });
+			res.status(200).json({ data: findBudgetData, message: "find many" });
 		} catch(err){
+			next(err);
+		}
+	}
+
+	public getBudgetByID = async(req: Request, res: Response, next: NextFunction) => {
+		try {
+			const ID: string =  req.params.id;
+			const findBudgetData: BudgetManager = await this.budgetService.findBudgetByID(ID);
+			res.status(200).json({data: findBudgetData, message: "find one"});
+		} catch(err) {
 			next(err);
 		}
 	}

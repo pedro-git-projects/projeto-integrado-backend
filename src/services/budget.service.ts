@@ -98,7 +98,6 @@ class BudgetService {
 		if(!selectedBudget) throw new HTTPException(404, "not found");
 
 		const selectedBills = selectedBudget?.bills;
-		console.log(selectedBills);
 		if(!selectedBills) throw new HTTPException(404, "not found");
 
 		const selectedBill = selectedBills.find(el => {

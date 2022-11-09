@@ -8,17 +8,21 @@ Construir uma versão inicial da **API REST** utilizando o framework Express. El
 
 ### Rotas:
 
-| Rota                            | Método | Função                                             |
-|---------------------------------|--------|----------------------------------------------------|
-| /api-docs                       | GET    | Documentação                                       |
-| /budget                         | GET    | Retorna todos os gerenciadores de finanças         |
-| /budget                         | POST   | Cria um novo gerenciador de finanças               |
-| /budget/:id                     | GET    | Retorna o budget manager de id respectivo          |
-| /budget/:id                     | PUT    | Altera um gerenciador de finanças                  |
-| /budget/:id                     | DELETE | Deleta um gerenciador de finanças                  |
-| /budget/:budgetid/pay/:billid   | PUT    | Paga uma conta em um gerenciador de finanças       |
-| /budget/:id/:operation/:balance | PUT    | Altera o saldo de acordo com a operacao estipulada |
-|                                 |        |                                                    |
+| Rota                             | Método | Função                                             |
+|----------------------------------|--------|----------------------------------------------------|
+| /api-docs                        | GET    | Documentacao                                       |
+| /budget                          | GET    | Retorna todos os gerenciadores de financas         |
+| /budget                          | POST   | Cria um novo gerenciador de financas               |
+| /budget/:id                      | GET    | Retorna o budget manager de id respectivo          | 
+| /budget/:id                      | PUT    | Altera um gerenciador de financas                  |
+| /budget/:id                      | DELETE | Deleta um gerenciador de financas                  |
+| /budget/:budgetid/pay/:billid    | PUT    | Paga uma conta em um gerenciador de financas       |
+| /budget/:id/:operation/:balance  | PUT    | Altera o saldo de acordo com a operacao estipulada |
+| /budget/:id/status/:status       | GET    | Filtra contas por status                           |
+| /budget/:id/frequency/:frequency | GET    | Filtra contas por frequencia                       |
+| /budget/:id/title/:title         | GET    | Filtra contas por titulo                           |
+| /budget/:budgetid/:billid        | DELETE | Deleta uma conta em un gerenciador de financas     |
+
 ### Instalando o projeto:
 
 Para instalar as dependências basta:

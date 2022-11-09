@@ -20,6 +20,71 @@ class BudgetService {
 		return findBudget;
 	}
 
+	public async findBillByStatus(budgetID: string, _status: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if(isEmpty(budgetID || _status)) throw new HTTPException(400, "incomplete path"); 
+		if(_status !== "Paid" && _status !== "Pending" && _status !== "Overdue") throw new HTTPException(422, `status ${_status} is not valid`);
+
+		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
+			{
+				_id: budgetID
+			}, {
+				bills: {
+					$filter: {
+						input: "$bills",
+						as: "bill", 
+						cond: {
+							$eq:["$$bill.status", _status]
+						}
+					}
+				}
+			});
+
+			return selectedBills;
+	}
+
+	public async findBillByFrequency(budgetID: string, frequency: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if(isEmpty(budgetID || frequency)) throw new HTTPException(400, "incomplete path"); 
+		if(frequency !== "OneTime" && frequency !== "Recurring") throw new HTTPException(422, `frequency ${frequency} is not valid`);
+		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
+			{
+				_id: budgetID
+			}, {
+				bills: {
+					$filter: {
+						input: "$bills",
+						as: "bill", 
+						cond: {
+							$eq:["$$bill.frequency", frequency]
+						}
+					}
+				}
+			});
+
+			return selectedBills;
+	}
+
+	public async findBillByTitle(budgetID: string, title: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if(isEmpty(budgetID) || isEmpty(title)) throw new HTTPException(400, "incomplete path"); 
+		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
+			{
+				_id: budgetID
+			}, {
+				bills: {
+					$filter: {
+						input: "$bills",
+						as: "bill", 
+						cond: {
+							$eq:[{$toLower:"$$bill.title"}, title]
+						}
+					}
+				} 
+			}	
+		);
+		if(!selectedBills) throw new HTTPException(409, "does not exist");
+		return selectedBills;
+	}
+
+
 	public async createBudget(budgetData: CreateBudgetDto): Promise<BudgetManager> {
 		if(isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
 		const createBudgetData: BudgetManager = await this.budgetModel.create({...budgetData});
@@ -43,7 +108,7 @@ class BudgetService {
 
 		const selectedBillCost = selectedBill.cost; 
 		console.log(selectedBillCost)
-		
+
 		if (selectedBill.status == Status.Paid) throw new HTTPException(422, "bill already paid");
 		selectedBill.status = Status.Paid;
 

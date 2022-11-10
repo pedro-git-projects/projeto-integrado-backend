@@ -106,7 +106,6 @@ class BudgetService {
 		if(!selectedBill) throw new HTTPException(404, "not found");
 
 		const selectedBillCost = selectedBill.cost; 
-		console.log(selectedBillCost)
 
 		if (selectedBill.status == Status.Paid) throw new HTTPException(422, "bill already paid");
 		selectedBill.status = Status.Paid;

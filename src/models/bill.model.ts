@@ -27,4 +27,3 @@ export const billSchema: Schema = new Schema({
 });
 
 export const billModel = model<Bill & Document>("bill", billSchema);
-//export billModel;

@@ -5,6 +5,7 @@ import {errorMiddleware} from "./middleware/error.middleware";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import {dbConnection} from "./databases/db";
+import cookieParser from "cookie-parser";
 
 export class App {
 	public app: express.Application;
@@ -62,6 +63,8 @@ export class App {
 
 	private initializeMiddleware() {
 		this.app.use(express.json());
+    	this.app.use(express.urlencoded({ extended: true }));
+    	this.app.use(cookieParser());
 	}
 
 	private initializeErrorHandling() {

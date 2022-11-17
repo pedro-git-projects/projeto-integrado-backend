@@ -30,6 +30,7 @@ class AuthService {
     if(!findUser) throw new HTTPException(409, `user with email ${userData.email} was not found`); 
 
     const pswdMatch: boolean = await compare(userData.password, findUser.password);
+    if(!pswdMatch) throw new HTTPException(409, "incorrect password");
 
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);

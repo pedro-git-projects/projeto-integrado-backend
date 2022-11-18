@@ -4,6 +4,8 @@ import {BudgetManager} from "../interfaces/budget";
 import {CreateBudgetDto} from "../dto/budget.dto";
 import {capitalizeFirst} from "../utils/capitalize";
 import {camelCaseFrequency} from "../interfaces/frequency.enum";
+import {verify} from "jsonwebtoken";
+import {SECRET_KEY} from "../config/config";
 
 class BudgetController {
 	public budgetService = new BudgetService();
@@ -83,6 +85,9 @@ class BudgetController {
 	}
 
 	public updateBalance = async(req: Request, res:Response, next: NextFunction) => {
+		// this gets the user id so I should also store user status, ie: admin
+		// const token = req.cookies.Authorization
+		// console.log(verify(token, SECRET_KEY))
 		try {
 			const auth: string = req.cookies.Authorization;
 			const ID: string = req.params.id;

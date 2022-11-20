@@ -1,4 +1,5 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsString } from 'class-validator';
+import {Group} from '../interfaces/group.enum';
 
 export class CreateUserDto {
   @IsEmail()
@@ -6,4 +7,7 @@ export class CreateUserDto {
 
   @IsString()
   public password: string;
+
+  @IsEnum(Group)
+  public group: string;
 }

@@ -10,6 +10,11 @@ const userSchema: Schema = new Schema({
 	password: {
 		type: String,
 		require: true
+	},
+	group: {
+		type: String,
+		enum: ["root", "users"],
+		require: true
 	}
 });
 

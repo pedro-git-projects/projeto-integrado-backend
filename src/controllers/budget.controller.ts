@@ -6,6 +6,7 @@ import {capitalizeFirst} from "../utils/capitalize";
 import {camelCaseFrequency} from "../interfaces/frequency.enum";
 import {verify} from "jsonwebtoken";
 import {SECRET_KEY} from "../config/config";
+import {DataStoredInToken} from "../interfaces/auth.interface"
 
 class BudgetController {
 	public budgetService = new BudgetService();
@@ -85,11 +86,10 @@ class BudgetController {
 	}
 
 	public updateBalance = async(req: Request, res:Response, next: NextFunction) => {
-		// this gets the user id so I should also store user status, ie: admin
-		// const token = req.cookies.Authorization
-		// console.log(verify(token, SECRET_KEY))
 		try {
-			const auth: string = req.cookies.Authorization;
+			const data = verify(req.cookies.Authorization, SECRET_KEY) as DataStoredInToken; 
+			const auth = data.group; 
+			console.log(auth);
 			const ID: string = req.params.id;
 			const operation: string = req.params.operation;
 			const balance: string = req.params.balance;

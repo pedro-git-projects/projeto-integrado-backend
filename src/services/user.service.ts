@@ -1,4 +1,4 @@
-import { hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
 import { CreateUserDto } from "../dto/user.dto";
 import { HTTPException } from "../exceptions/HTTPException";
 import { User } from "../interfaces/user.interface";
@@ -51,12 +51,12 @@ class UserService {
 
     const toUpdate = await this.users.findOne({_id: ID});
     if(!toUpdate) throw new HTTPException(409, "could not find user");
-    console.log(toUpdate.password)
 
-    if(toUpdate.password !== changePassword.oldPassword) throw new HTTPException(401, "wrong password");
+    const comparison = await compare(changePassword.oldPassword, toUpdate.password);
+    if(!comparison) throw new HTTPException(401, "wrong password");
 
     toUpdate.password = hashedPswd;
-    const updated: User = await toUpdate.save();
+    const updated = await toUpdate.save();
     if(!updated) throw new HTTPException(500, "internal server error");
 
     return updated;

@@ -54,6 +54,9 @@ class UserService {
     const comparison = await compare(changePassword.oldPassword, selectedUser.password);
     if(!comparison) throw new HTTPException(401, "wrong password");
 
+    const isNotNew = await compare(changePassword.newPassword, selectedUser.password);
+    if(isNotNew) throw new HTTPException(422, "password must be new");
+
     selectedUser.password = hashedPswd;
     const updated = await selectedUser.save();
     if(!updated) throw new HTTPException(409, "conflict");

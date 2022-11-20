@@ -4,6 +4,9 @@ import {BudgetManager} from "../interfaces/budget";
 import {CreateBudgetDto} from "../dto/budget.dto";
 import {capitalizeFirst} from "../utils/capitalize";
 import {camelCaseFrequency} from "../interfaces/frequency.enum";
+import {verify} from "jsonwebtoken";
+import {SECRET_KEY} from "../config/config";
+import {DataStoredInToken} from "../interfaces/auth.interface"
 
 class BudgetController {
 	public budgetService = new BudgetService();
@@ -11,7 +14,6 @@ class BudgetController {
 	public getBudget = async(req: Request, res: Response, next: NextFunction) => {
 		try {
 			const findBudgetData: BudgetManager[] = await this.budgetService.findBudget();
-			console.log(req.cookies)
 			res.status(200).json({ data: findBudgetData, message: "find many" });
 		} catch(err){
 			next(err);
@@ -84,7 +86,8 @@ class BudgetController {
 
 	public updateBalance = async(req: Request, res:Response, next: NextFunction) => {
 		try {
-			const auth: string = req.cookies.Authorization;
+			const data = verify(req.cookies.Authorization, SECRET_KEY) as DataStoredInToken; 
+			const auth = data.group; 
 			const ID: string = req.params.id;
 			const operation: string = req.params.operation;
 			const balance: string = req.params.balance;

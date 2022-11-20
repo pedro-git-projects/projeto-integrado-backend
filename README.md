@@ -6,22 +6,36 @@
 
 Construir uma versão inicial da **API REST** utilizando o framework Express. Ela deve conter rotas, controladores e testes unitários implementados. As respostas dos endpoits da API são mocadas, ou seja, simulam valores que serão usados nos testes.
 
+## Fase 2:
+
+### Instruções:
+
+Produzir uma versão final da API REST contendo os modelos e validadores implementados e integrados ao banco de dados, utilizando o framework Express e o MongoDB. Deve-se implementar também a segurança da API utilizando JWT.
+
 ### Rotas:
 
-| Rota                             | Método | Função                                             |
-|----------------------------------|--------|----------------------------------------------------|
-| /api-docs                        | GET    | Documentacao                                       |
-| /budget                          | GET    | Retorna todos os gerenciadores de financas         |
-| /budget                          | POST   | Cria um novo gerenciador de financas               |
-| /budget/:id                      | GET    | Retorna o budget manager de id respectivo          | 
-| /budget/:id                      | PUT    | Altera um gerenciador de financas                  |
-| /budget/:id                      | DELETE | Deleta um gerenciador de financas                  |
-| /budget/:budgetid/pay/:billid    | PUT    | Paga uma conta em um gerenciador de financas       |
-| /budget/:id/:operation/:balance  | PUT    | Altera o saldo de acordo com a operacao estipulada |
-| /budget/:id/status/:status       | GET    | Filtra contas por status                           |
-| /budget/:id/frequency/:frequency | GET    | Filtra contas por frequencia                       |
-| /budget/:id/title/:title         | GET    | Filtra contas por titulo                           |
-| /budget/:budgetid/:billid        | DELETE | Deleta uma conta em un gerenciador de financas     |
+| Rota                             | Método | Função                                              |
+|----------------------------------|--------|-----------------------------------------------------|
+| /api-docs                        | GET    | Documentacao                                        |
+| /budget                          | GET    | Retorna todos os gerenciadores de financas          |
+| /budget                          | POST   | Cria um novo gerenciador de financas                |
+| /budget/:id                      | GET    | Retorna o budget manager de id respectivo           | 
+| /budget/:id                      | PUT    | Altera um gerenciador de financas                   |
+| /budget/:id                      | DELETE | Deleta um gerenciador de financas                   |
+| /budget/:budgetid/pay/:billid    | PUT    | Paga uma conta em um gerenciador de financas        |
+| /budget/:id/:operation/:balance  | PUT    | Altera o saldo de acordo com a operacao estipulada  |
+| /budget/:id/status/:status       | GET    | Filtra contas por status                            |
+| /budget/:id/frequency/:frequency | GET    | Filtra contas por frequencia                        |
+| /budget/:id/title/:title         | GET    | Filtra contas por titulo                            |
+| /budget/:budgetid/:billid        | DELETE | Deleta uma conta em un gerenciador de financas      |
+| /signup 						   | POST   | Cria uma nova conta de usuário ou administrador     |
+| /signin 						   | POST   | Loga um usuário     								  |
+| /signout 						   | POST   | Desloga um usuário     							  |
+| /user 						   | GET    | Lista todos os usuários 							  |
+| /user 						   | PATCH  | Troca a senha de um usuário 					      |
+| /user/:id 					   | GET    | Lista um usuário por ID 							  |
+| /user/:id 					   | PUT    | Atualiza um usuário por ID 					      |
+| /user/:id 					   | DELETE | Deleta um usuário por ID 					          |
 
 ### Instalando o projeto:
 

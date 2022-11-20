@@ -4,6 +4,7 @@ import { isEmpty } from "../utils/empty";
 import budgetModel from "../models/budget.model";
 import {CreateBudgetDto} from "../dto/budget.dto";
 import {Status} from "../interfaces/status.enum";
+import {Group} from "../interfaces/group.enum";
 
 class BudgetService {
 	public budgetModel = budgetModel;
@@ -131,7 +132,7 @@ class BudgetService {
 
 	public async updateBalance(ID: string, operation: string, balance: string, auth: string): Promise<BudgetManager|never> {
 		if(isEmpty(ID) || isEmpty(balance) || isEmpty(operation)) throw new HTTPException(400, "incomplete path");
-		if(isEmpty(auth)) throw new HTTPException(401, "Unauthorized");
+		if(isEmpty(auth) || auth !== Group.root) throw new HTTPException(401, "Unauthorized");
 
 		const nBalance = Number(balance);
 		if(nBalance == NaN) throw new HTTPException(422, "balance must be numeric");

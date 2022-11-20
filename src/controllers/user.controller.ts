@@ -34,7 +34,7 @@ class UserController {
 			const data = verify(req.cookies.Authorization, SECRET_KEY) as DataStoredInToken; 
 			const ID = data._id;
 			const changePswdData: ChangePswdDTO = req.body;	
-			const changePswd = this.userService.changePassword(ID, changePswdData);
+			const changePswd = await this.userService.changePassword(ID, changePswdData);
 			res.status(200).json({data: changePswd, message: "password changed successfully"})
 		} catch(err) {
 			next(err);

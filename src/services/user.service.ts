@@ -42,22 +42,21 @@ class UserService {
     return updateUserById;
   }
 
-  // TODO: FIX
-  public async changePassword(ID: string, changePassword: ChangePswdDTO): Promise<User> {
+  public async changePassword(ID: string, changePassword: ChangePswdDTO): Promise<User|never> {
     if(isEmpty(ID) || isEmpty(changePassword.oldPassword)) throw new HTTPException(422, "please make sure you're logged in");
 
     if(isEmpty(changePassword.newPassword)) throw new HTTPException(409, "missing new password");
     const hashedPswd = await hash(changePassword.newPassword, 10);
 
-    const toUpdate = await this.users.findOne({_id: ID});
-    if(!toUpdate) throw new HTTPException(409, "could not find user");
+    const selectedUser = await this.users.findOne({_id: ID});
+    if(!selectedUser) throw new HTTPException(409, "not found");
 
-    const comparison = await compare(changePassword.oldPassword, toUpdate.password);
+    const comparison = await compare(changePassword.oldPassword, selectedUser.password);
     if(!comparison) throw new HTTPException(401, "wrong password");
 
-    toUpdate.password = hashedPswd;
-    const updated = await toUpdate.save();
-    if(!updated) throw new HTTPException(500, "internal server error");
+    selectedUser.password = hashedPswd;
+    const updated = await selectedUser.save();
+    if(!updated) throw new HTTPException(409, "conflict");
 
     return updated;
   }

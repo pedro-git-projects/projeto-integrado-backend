@@ -14,7 +14,6 @@ class BudgetController {
 	public getBudget = async(req: Request, res: Response, next: NextFunction) => {
 		try {
 			const findBudgetData: BudgetManager[] = await this.budgetService.findBudget();
-			console.log(req.cookies)
 			res.status(200).json({ data: findBudgetData, message: "find many" });
 		} catch(err){
 			next(err);
@@ -89,7 +88,6 @@ class BudgetController {
 		try {
 			const data = verify(req.cookies.Authorization, SECRET_KEY) as DataStoredInToken; 
 			const auth = data.group; 
-			console.log(auth);
 			const ID: string = req.params.id;
 			const operation: string = req.params.operation;
 			const balance: string = req.params.balance;

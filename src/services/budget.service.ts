@@ -5,97 +5,194 @@ import budgetModel from "../models/budget.model";
 import {CreateBudgetDto} from "../dto/budget.dto";
 import {Status} from "../interfaces/status.enum";
 import {Group} from "../interfaces/group.enum";
+import {Document} from "mongoose";
 
 class BudgetService {
 	public budgetModel = budgetModel;
 
-	public async findBudget(): Promise<BudgetManager[]> {
-		const budget: BudgetManager[] = await this.budgetModel.find();
+	// root users can search the whole database, regular users only those entries created by them
+	public async findBudget(userID: string, privilge: Group): Promise<BudgetManager[]> {
+		let budget: BudgetManager[]; 
+		if(privilge == Group.root) { 
+			budget = await this.budgetModel.find(); 
+		} else {
+			budget = await this.budgetModel.find({createdBy: userID});
+		}
 		return budget;
 	} 
 
-	public async findBudgetByID(ID: string): Promise<BudgetManager|never> {
-		if (isEmpty(ID)) throw new HTTPException(400, "ID is empty");
-		const findBudget: BudgetManager|null = await this.budgetModel.findOne({_id: ID}); 
-		if(!findBudget) throw new HTTPException(409, "Bill does't exist");
+	// root users can search the whole database, regular users only those entries created by them
+	public async findBudgetByID(budgetID: string, group: Group, userID: string): Promise<BudgetManager|never> {
+		if (isEmpty(budgetID)) throw new HTTPException(400, "ID is empty");
+		let findBudget: BudgetManager|null;		
+		if(group == Group.root) {
+			findBudget = await this.budgetModel.findOne({_id: budgetID}); 
+		} else {
+			findBudget = await this.budgetModel.findOne({_id: budgetID, createdBy: userID}); 
+		}
+		if(!findBudget) throw new HTTPException(409, "Budget manager doesn't exist");
 		return findBudget;
 	}
 
-	public async findBillByStatus(budgetID: string, _status: string): Promise<BudgetManager|BudgetManager[]|never> {
+	// root users can search the whole database, regular users only those entries created by them
+	public async findBillByStatus(budgetID: string, _status: string, group: Group, userID: string): Promise<BudgetManager|BudgetManager[]|never> {
 		if(isEmpty(budgetID || _status)) throw new HTTPException(400, "incomplete path"); 
 		if(_status !== "Paid" && _status !== "Pending" && _status !== "Overdue") throw new HTTPException(422, `status ${_status} is not valid`);
 
-		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
-			{
-				_id: budgetID
-			}, {
-				bills: {
-					$filter: {
-						input: "$bills",
-						as: "bill", 
-						cond: {
-							$eq:["$$bill.status", _status]
+		let selectedBills: BudgetManager|BudgetManager[]|null;
+		if(group == Group.root) {
+			selectedBills = await this.budgetModel.find(
+				{
+					_id: budgetID
+				}, {
+					bills: {
+						$filter: {
+							input: "$bills",
+							as: "bill", 
+							cond: {
+								$eq:["$$bill.status", _status]
+							}
 						}
 					}
-				}
-			});
-
-			return selectedBills;
+				});			
+		} else {
+			selectedBills = await this.budgetModel.find(
+				{
+					_id: budgetID,
+					createdBy: userID
+				}, {
+					bills: {
+						$filter: {
+							input: "$bills",
+							as: "bill", 
+							cond: {
+								$eq:["$$bill.status", _status]
+							}
+						}
+					}
+				});
+		}
+		return selectedBills;
 	}
 
-	public async findBillByFrequency(budgetID: string, frequency: string): Promise<BudgetManager|BudgetManager[]|never> {
+	// root users can search the whole database, regular users only those entries created by them
+	public async findBillByFrequency(budgetID: string, frequency: string, group: Group, userID: string): Promise<BudgetManager|BudgetManager[]> {
 		if(isEmpty(budgetID || frequency)) throw new HTTPException(400, "incomplete path"); 
 		if(frequency !== "OneTime" && frequency !== "Recurring") throw new HTTPException(422, `frequency ${frequency} is not valid`);
-		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
-			{
-				_id: budgetID
-			}, {
-				bills: {
-					$filter: {
-						input: "$bills",
-						as: "bill", 
-						cond: {
-							$eq:["$$bill.frequency", frequency]
+
+		let selectedBills: BudgetManager|BudgetManager[]|null;
+		if(group == Group.root) {
+			selectedBills = await this.budgetModel.find(
+				{
+					_id: budgetID
+				}, {
+					bills: {
+						$filter: {
+							input: "$bills",
+							as: "bill", 
+							cond: {
+								$eq:["$$bill.frequency", frequency]
+							}
 						}
 					}
-				}
-			});
-
-			return selectedBills;
+				});
+		} else {
+			selectedBills = await this.budgetModel.find(
+				{
+					_id: budgetID,
+					createdBy: userID
+				}, {
+					bills: {
+						$filter: {
+							input: "$bills",
+							as: "bill", 
+							cond: {
+								$eq:["$$bill.frequency", frequency]
+							}
+						}
+					}
+				});
+		}
+		return selectedBills;
 	}
 
-	public async findBillByTitle(budgetID: string, title: string): Promise<BudgetManager|BudgetManager[]|never> {
+	// finds a bill by title in all budget managers for root users, only in those budget managers created by the user otherwise
+	public async findBillByTitle(budgetID: string, title: string, group: Group, userID: string): Promise<BudgetManager|BudgetManager[]|never> {
 		if(isEmpty(budgetID) || isEmpty(title)) throw new HTTPException(400, "incomplete path"); 
-		const selectedBills: BudgetManager|BudgetManager[]|null = await this.budgetModel.find(
-			{
-				_id: budgetID
-			}, {
-				bills: {
-					$filter: {
-						input: "$bills",
-						as: "bill", 
-						cond: {
-							$eq:[{$toLower:"$$bill.title"}, title]
+		let selectedBills: BudgetManager|BudgetManager[]|null; 
+
+		if(group == Group.root) {
+			selectedBills = await this.budgetModel.find(
+				{
+					_id: budgetID
+				}, {
+					bills: {
+						$filter: {
+							input: "$bills",
+							as: "bill", 
+							cond: {
+								$eq:[{$toLower:"$$bill.title"}, title]
+							}
 						}
-					}
-				} 
-			}	
-		);
+					} 
+				}	
+			);
+		} else {
+			selectedBills = await this.budgetModel.find(
+				{
+					_id: budgetID,
+					createdBy: userID
+				}, {
+					bills: {
+						$filter: {
+							input: "$bills",
+							as: "bill", 
+							cond: {
+								$eq:[{$toLower:"$$bill.title"}, title]
+							}
+						}
+					} 
+				}	
+			);
+		}
 		if(!selectedBills) throw new HTTPException(409, "does not exist");
 		return selectedBills;
 	}
 
 
-	public async createBudget(budgetData: CreateBudgetDto): Promise<BudgetManager> {
+	// Creates any number of budget managers for root users, one if not exists for regular users
+	public async createBudget(budgetData: CreateBudgetDto, group: Group, userID: string): Promise<BudgetManager> {
 		if(isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
-		const createBudgetData: BudgetManager = await this.budgetModel.create({...budgetData});
+
+		let createBudgetData: BudgetManager;	
+		let testForMultiple: BudgetManager[];
+		if(group != Group.root) {
+			testForMultiple = await this.budgetModel.find({createdBy: userID});
+			console.log(testForMultiple)
+			if(testForMultiple.length == 0) {
+				createBudgetData =	await this.budgetModel.create({...budgetData});
+			} else {
+				throw new HTTPException(422, "each user can only have one budget manager");
+			} 
+		} else {
+
+			createBudgetData =	await this.budgetModel.create({...budgetData});
+		}
+
 		return createBudgetData;
 	}
 
-	public async payBill(budgetID: string, billID: string): Promise<BudgetManager> {
+	// root users can pay any bills, regular users, however, can pay only bills in budget managers they created
+	public async payBill(budgetID: string, billID: string, group: Group, userID: string): Promise<BudgetManager> {
 		if(isEmpty(budgetID) || isEmpty(billID)) throw new HTTPException(400,"incomplete path");
 
-		const selectedBudget = await budgetModel.findOne({_id: budgetID});
+		let selectedBudget: BudgetManager&Document|null; 
+		if(group == Group.root) {
+			selectedBudget = await budgetModel.findOne({_id: budgetID});
+		} else {
+			selectedBudget = await budgetModel.findOne({_id: budgetID, createdBy: userID});
+		}
+
 		if(!selectedBudget) throw new HTTPException(404, "not found");
 
 		const selectedBills = selectedBudget?.bills;
@@ -130,9 +227,10 @@ class BudgetService {
 		return updateBalance;
 	}
 
+	// only root users can set their balance 
 	public async updateBalance(ID: string, operation: string, balance: string, auth: string): Promise<BudgetManager|never> {
 		if(isEmpty(ID) || isEmpty(balance) || isEmpty(operation)) throw new HTTPException(400, "incomplete path");
-		if(isEmpty(auth) || auth !== Group.root) throw new HTTPException(401, "Unauthorized");
+		if(isEmpty(auth)) throw new HTTPException(401, "unauthorized");
 
 		const nBalance = Number(balance);
 		if(nBalance == NaN) throw new HTTPException(422, "balance must be numeric");
@@ -165,6 +263,7 @@ class BudgetService {
 			break;
 
 			case("set"):
+				if(auth == Group.root) {
 				updateBalance = await this.budgetModel.findByIdAndUpdate(
 					ID,
 					{
@@ -173,7 +272,8 @@ class BudgetService {
 					{
 						returnOriginal: false
 					}
-			);
+				);
+			} else throw new HTTPException (401, "unauthorized");
 			break;
 
 			default:
@@ -181,33 +281,57 @@ class BudgetService {
 		}
 
 
-		if(!updateBalance) throw new HTTPException(409, "Budget manager does not exist");
+		if(!updateBalance) throw new HTTPException(409, "budget manager does not exist");
 		return updateBalance;
 	}
 
-	public async updateBudget(ID: string, budgetData: CreateBudgetDto): Promise<BudgetManager|never> {
-		if (isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
+	// only root users can update budget managers
+	public async updateBudget(ID: string, budgetData: CreateBudgetDto, group: Group): Promise<BudgetManager|never> {
+		if (isEmpty(budgetData)) throw new HTTPException(400, "budget data is empty");
+		if (group !== Group.root) throw new HTTPException(401, "this operation requires root access");
 		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(ID, {...budgetData}, {returnOriginal: false});
-		if(!updateBudget) throw new HTTPException(409, "Budget manager does not exist");
+		if(!updateBudget) throw new HTTPException(409, "budget manager does not exist");
 		return updateBudget;
 	}
 
-	public async deleteBudget(ID: string): Promise<BudgetManager|never> {
-		const deleteBudget: BudgetManager|null = await this.budgetModel.findByIdAndDelete(ID);
-		if(!deleteBudget) throw new HTTPException(409, "Budget Manager does not exist");
+	// root users can delete any budget managers, regular users can only delete their own
+	public async deleteBudget(budgetID: string, group: Group, userID: string): Promise<BudgetManager> {
+		let testOwnership: BudgetManager[];
+		let deleteBudget: BudgetManager|null;
+
+		if(group !== Group.root) {
+			testOwnership = await this.budgetModel.find({_id: budgetID, createdBy: userID});
+			if(testOwnership.length == 0) throw new HTTPException(401, "deletion non authorized");
+			deleteBudget = await this.budgetModel.findByIdAndDelete(budgetID);
+		} else {
+			deleteBudget = await this.budgetModel.findByIdAndDelete(budgetID);
+		}
+
+		if(!deleteBudget) throw new HTTPException(409, "budget Manager does not exist");
 		return deleteBudget;
 	}
 
-	public async deleteBill(BudgetID:string, BillID: string): Promise <BudgetManager|never> {
+	// root users can delete any bills, regular users can delete bills of budget managers created by them
+	public async deleteBill(BudgetID:string, BillID: string, group: Group, userID: string): Promise <BudgetManager|never> {
 		if(isEmpty(BudgetID) || isEmpty(BillID)) throw new HTTPException (400,"incomplete path");
-		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(
-			BudgetID, 
-			{
-				$pull: { bills: { _id: BillID } },
-			}, 
-			{returnOriginal: false}
-		);
-
+		let updateBudget: BudgetManager|null;
+		if(group == Group.root) {
+			updateBudget = await this.budgetModel.findByIdAndUpdate(
+				BudgetID, 
+				{
+					$pull: { bills: { _id: BillID } },
+				}, 
+				{returnOriginal: false}
+			);
+		} else {
+			updateBudget = await this.budgetModel.findOneAndUpdate(
+				{ _id: BudgetID, createdBy: userID }, 
+				{
+					$pull: { bills: { _id: BillID } },
+				}, 
+				{returnOriginal: false}
+			);
+		} 
 		if(!updateBudget) throw new HTTPException(409, "Bill does not exist");
 
 		return updateBudget;

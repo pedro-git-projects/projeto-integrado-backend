@@ -1,4 +1,4 @@
-import { Bill } from "./bill";
+import { Bill } from "./bill.interface";
 
 export interface BudgetManager {
 	_id?: string,

@@ -1,5 +1,5 @@
 import { IsArray,  IsNumberString, IsString } from "class-validator";
-import {Bill} from "../interfaces/bill";
+import {Bill} from "../interfaces/bill.interface";
 
 export class LoginBudgetDto {
 	@IsString()

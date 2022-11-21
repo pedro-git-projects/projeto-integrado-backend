@@ -1,4 +1,4 @@
-import { BudgetManager } from "../interfaces/budget";
+import { BudgetManager } from "../interfaces/budget.interface";
 import { HTTPException } from "../exceptions/HTTPException";
 import { isEmpty } from "../utils/empty";
 import budgetModel from "../models/budget.model";

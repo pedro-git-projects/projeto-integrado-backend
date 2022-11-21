@@ -1,5 +1,5 @@
 import { model, Schema, Document } from 'mongoose';
-import { Bill } from "../interfaces/bill";
+import { Bill } from "../interfaces/bill.interface";
 
 export const billSchema: Schema = new Schema({
 	title: {

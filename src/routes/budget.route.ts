@@ -23,7 +23,7 @@ export class BudgetRoute implements Routes {
 		this.router.patch(`${this.path}/:budgetid/pay/:billid`, this.budgetController.payBill);
 		this.router.patch(`${this.path}/:id/:operation/:balance`, this.budgetController.updateBalance);
 		this.router.delete(`${this.path}/:budgetid/:billid`, this.budgetController.deleteBill);
-		this.router.delete(`${this.path}/:id`, this.budgetController.deleteBudget);
+		this.router.delete(`${this.path}/:id?`, this.budgetController.deleteBudget);
 	}
 };
 

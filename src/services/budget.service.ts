@@ -7,6 +7,7 @@ import {Status} from "../interfaces/status.enum";
 import {Group} from "../interfaces/group.enum";
 import {Document} from "mongoose";
 import {CreateBillDTO} from "../dto/bill.dto";
+import {getBudgetID} from "../utils/serivce.utils";
 
 class BudgetService {
 	public budgetModel = budgetModel;
@@ -302,15 +303,14 @@ class BudgetService {
 	}
 
 	// root users can delete any budget managers, regular users can only delete their own
+	// regular useres do not need to pass the budget ID
 	public async deleteBudget(budgetID: string, group: Group, userID: string): Promise<BudgetManager> {
 		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
-		let testOwnership: BudgetManager[];
 		let deleteBudget: BudgetManager|null;
 
 		if(group !== Group.root) {
-			testOwnership = await this.budgetModel.find({_id: budgetID, createdBy: userID});
-			if(testOwnership.length == 0) throw new HTTPException(401, "deletion non authorized");
-			deleteBudget = await this.budgetModel.findByIdAndDelete(budgetID);
+			const id = await getBudgetID(userID);
+			deleteBudget = await this.budgetModel.findByIdAndDelete(id);
 		} else {
 			deleteBudget = await this.budgetModel.findByIdAndDelete(budgetID);
 		}
@@ -319,13 +319,13 @@ class BudgetService {
 		return deleteBudget;
 	}
 
+	// regular users do not need to pass the budget ID as a parameter
+	// root users must specify which budget they want to delete
 	public async createBill(budgetID: string, billData: CreateBillDTO, group: Group, userID: string): Promise<BudgetManager> {
 		if(isEmpty(billData)) throw new HTTPException(400, "missing bill data");
 		let addedBill: BudgetManager|null;
 		if(group !== Group.root) {
-			const budgetManager = await budgetModel.findOne({createdBy: userID});
-			if(!budgetManager) throw new HTTPException(404, "not found");
-			const id = budgetManager._id;
+			const id = await getBudgetID(userID);
 			addedBill = await this.budgetModel.findByIdAndUpdate(
 				id,
 				{$push: {bills: {...billData}}},

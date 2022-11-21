@@ -150,6 +150,20 @@ class BudgetController {
 		}
 	}
 
+	public createBill = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const budgetID  = req.params.id;
+			const billData = req.body;
+			const data = verify(req.cookies.Authorization, SECRET_KEY) as DataStoredInToken; 
+			const group = data.group;
+			const userID = data._id;
+			const addedBillData: BudgetManager = await this.budgetService.createBill(budgetID, billData, group, userID)
+			res.status(200).json({data: addedBillData, message: "added"});
+		} catch (err) {
+			next(err);	
+		}
+	}
+
 	public deleteBill = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const BudgetID: string = req.params.budgetid;

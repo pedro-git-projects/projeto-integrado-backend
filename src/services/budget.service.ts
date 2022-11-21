@@ -6,12 +6,14 @@ import {CreateBudgetDto} from "../dto/budget.dto";
 import {Status} from "../interfaces/status.enum";
 import {Group} from "../interfaces/group.enum";
 import {Document} from "mongoose";
+import {CreateBillDTO} from "../dto/bill.dto";
 
 class BudgetService {
 	public budgetModel = budgetModel;
 
 	// root users can search the whole database, regular users only those entries created by them
 	public async findBudget(userID: string, privilge: Group): Promise<BudgetManager[]> {
+		if(isEmpty(userID) || isEmpty(privilge)) throw new HTTPException(401, "must be logged in");
 		let budget: BudgetManager[]; 
 		if(privilge == Group.root) { 
 			budget = await this.budgetModel.find(); 
@@ -24,6 +26,7 @@ class BudgetService {
 	// root users can search the whole database, regular users only those entries created by them
 	public async findBudgetByID(budgetID: string, group: Group, userID: string): Promise<BudgetManager|never> {
 		if (isEmpty(budgetID)) throw new HTTPException(400, "ID is empty");
+		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
 		let findBudget: BudgetManager|null;		
 		if(group == Group.root) {
 			findBudget = await this.budgetModel.findOne({_id: budgetID}); 
@@ -79,6 +82,7 @@ class BudgetService {
 	public async findBillByFrequency(budgetID: string, frequency: string, group: Group, userID: string): Promise<BudgetManager|BudgetManager[]> {
 		if(isEmpty(budgetID || frequency)) throw new HTTPException(400, "incomplete path"); 
 		if(frequency !== "OneTime" && frequency !== "Recurring") throw new HTTPException(422, `frequency ${frequency} is not valid`);
+		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
 
 		let selectedBills: BudgetManager|BudgetManager[]|null;
 		if(group == Group.root) {
@@ -118,6 +122,7 @@ class BudgetService {
 
 	// finds a bill by title in all budget managers for root users, only in those budget managers created by the user otherwise
 	public async findBillByTitle(budgetID: string, title: string, group: Group, userID: string): Promise<BudgetManager|BudgetManager[]|never> {
+		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
 		if(isEmpty(budgetID) || isEmpty(title)) throw new HTTPException(400, "incomplete path"); 
 		let selectedBills: BudgetManager|BudgetManager[]|null; 
 
@@ -162,6 +167,7 @@ class BudgetService {
 
 	// Creates any number of budget managers for root users, one if not exists for regular users
 	public async createBudget(budgetData: CreateBudgetDto, group: Group, userID: string): Promise<BudgetManager> {
+		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
 		if(isEmpty(budgetData)) throw new HTTPException(400, "Budget data is empty");
 
 		let createBudgetData: BudgetManager;	
@@ -184,6 +190,7 @@ class BudgetService {
 
 	// root users can pay any bills, regular users, however, can pay only bills in budget managers they created
 	public async payBill(budgetID: string, billID: string, group: Group, userID: string): Promise<BudgetManager> {
+		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
 		if(isEmpty(budgetID) || isEmpty(billID)) throw new HTTPException(400,"incomplete path");
 
 		let selectedBudget: BudgetManager&Document|null; 
@@ -296,6 +303,7 @@ class BudgetService {
 
 	// root users can delete any budget managers, regular users can only delete their own
 	public async deleteBudget(budgetID: string, group: Group, userID: string): Promise<BudgetManager> {
+		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
 		let testOwnership: BudgetManager[];
 		let deleteBudget: BudgetManager|null;
 
@@ -309,6 +317,30 @@ class BudgetService {
 
 		if(!deleteBudget) throw new HTTPException(409, "budget Manager does not exist");
 		return deleteBudget;
+	}
+
+	public async createBill(budgetID: string, billData: CreateBillDTO, group: Group, userID: string): Promise<BudgetManager> {
+		if(isEmpty(billData)) throw new HTTPException(400, "missing bill data");
+		let addedBill: BudgetManager|null;
+		if(group !== Group.root) {
+			const budgetManager = await budgetModel.findOne({createdBy: userID});
+			if(!budgetManager) throw new HTTPException(404, "not found");
+			const id = budgetManager._id;
+			addedBill = await this.budgetModel.findByIdAndUpdate(
+				id,
+				{$push: {bills: {...billData}}},
+				{returnOriginal:false}
+			);
+		} else {
+			if(isEmpty(budgetID)) throw new HTTPException(400, "missing budget id");
+			addedBill = await this.budgetModel.findByIdAndUpdate(
+				budgetID,
+				{$push: {bills: {...billData}}},
+				{returnOriginal:false}
+			);
+		}
+		if(!addedBill) throw new HTTPException(404, "not found");
+		return addedBill;
 	}
 
 	// root users can delete any bills, regular users can delete bills of budget managers created by them

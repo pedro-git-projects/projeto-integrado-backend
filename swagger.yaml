@@ -1,8 +1,45 @@
+openapi: 3.0.0
+
 tags:
 - name: budgetManager 
   description: Budget Manager API
 
 paths:
+# [POST] sign up
+  /signup:
+    post:
+      tags:
+      - auth
+      summary: Cadastra um novo usuário
+      parameters:
+      - email:
+        in: body
+        description: user email
+        example: "root@email.com"
+        required: true
+      - password:
+        in: body
+        example: "jacaredecapacete"
+        required: true
+      - group:
+        in: body
+        description: user access level
+        example: "root"
+        schema:
+          $ref: '#/definitions/signup' 
+          examples:
+            value:
+              email: "root@email.com"
+              password: "jacaredecapacete"
+              group: "root"
+      responses:
+        200:
+          description: 'signed up'
+        400:
+          description: 'user data is empty'
+        409:
+          description: 'email is already registered'
+
 # [GET] budgetManager 
   /budget:
     get:
@@ -276,6 +313,26 @@ definitions:
         bills:
           type: string
           description: collection of bills
+    signup:
+      type: object
+      required:
+        - email
+        - password
+        - group
+      properties:
+        email:
+          type: string
+          description: User email
+          example: "root@email.com"
+        password: 
+          type: string
+          description: User password 
+          example: "jacaredecapacete"
+        group:
+          type: string
+          description: User privilege level
+          example: "root"
+
 schemes:
  - https
  - http

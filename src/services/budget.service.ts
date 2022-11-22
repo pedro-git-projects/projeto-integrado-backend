@@ -24,10 +24,10 @@ class BudgetService {
 		return budget;
 	} 
 
-	// root users can search the whole database, regular users only those entries created by them
+	// only root users can access this method 
 	public async findBudgetByID(budgetID: string, group: Group, userID: string): Promise<BudgetManager|never> {
 		if (isEmpty(budgetID)) throw new HTTPException(400, "ID is empty");
-		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
+		if(group != Group.root) throw new HTTPException(401, "unauthorized");
 		let findBudget: BudgetManager|null;		
 		if(group == Group.root) {
 			findBudget = await this.budgetModel.findOne({_id: budgetID}); 
@@ -38,13 +38,14 @@ class BudgetService {
 		return findBudget;
 	}
 
-	// root users can search the whole database, regular users only those entries created by them
+	// regular users automatically filter their own budget manager for status 
+	// root users must specify the budget manager by ID
 	public async findBillByStatus(budgetID: string, _status: string, group: Group, userID: string): Promise<BudgetManager|BudgetManager[]|never> {
-		if(isEmpty(budgetID || _status)) throw new HTTPException(400, "incomplete path"); 
 		if(_status !== "Paid" && _status !== "Pending" && _status !== "Overdue") throw new HTTPException(422, `status ${_status} is not valid`);
 
 		let selectedBills: BudgetManager|BudgetManager[]|null;
 		if(group == Group.root) {
+			if(isEmpty(budgetID)) throw new HTTPException(400, "missing ID");
 			selectedBills = await this.budgetModel.find(
 				{
 					_id: budgetID
@@ -60,9 +61,11 @@ class BudgetService {
 					}
 				});			
 		} else {
+			if(!isEmpty(budgetID)) throw new HTTPException(401, "unauthorized");
+			const id = await getBudgetID(userID);
 			selectedBills = await this.budgetModel.find(
 				{
-					_id: budgetID,
+					_id: id,
 					createdBy: userID
 				}, {
 					bills: {
@@ -79,14 +82,14 @@ class BudgetService {
 		return selectedBills;
 	}
 
-	// root users can search the whole database, regular users only those entries created by them
+	// root users filter the document with desired id whilst regular users automatically fillter their database if exists 
 	public async findBillByFrequency(budgetID: string, frequency: string, group: Group, userID: string): Promise<BudgetManager|BudgetManager[]> {
-		if(isEmpty(budgetID || frequency)) throw new HTTPException(400, "incomplete path"); 
+		if(isEmpty(frequency)) throw new HTTPException(400, "missing frequency"); 
 		if(frequency !== "OneTime" && frequency !== "Recurring") throw new HTTPException(422, `frequency ${frequency} is not valid`);
-		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
 
 		let selectedBills: BudgetManager|BudgetManager[]|null;
 		if(group == Group.root) {
+			if(isEmpty(budgetID)) throw new HTTPException(400, "missing ID");
 			selectedBills = await this.budgetModel.find(
 				{
 					_id: budgetID
@@ -102,9 +105,11 @@ class BudgetService {
 					}
 				});
 		} else {
+			if(!isEmpty(budgetID)) throw new HTTPException(401, "unauthorized");
+			const id = await getBudgetID(userID);
 			selectedBills = await this.budgetModel.find(
 				{
-					_id: budgetID,
+					_id: id,
 					createdBy: userID
 				}, {
 					bills: {
@@ -123,11 +128,11 @@ class BudgetService {
 
 	// finds a bill by title in all budget managers for root users, only in those budget managers created by the user otherwise
 	public async findBillByTitle(budgetID: string, title: string, group: Group, userID: string): Promise<BudgetManager|BudgetManager[]|never> {
-		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
-		if(isEmpty(budgetID) || isEmpty(title)) throw new HTTPException(400, "incomplete path"); 
+		if(isEmpty(title)) throw new HTTPException(400, "tilte is missing"); 
 		let selectedBills: BudgetManager|BudgetManager[]|null; 
 
 		if(group == Group.root) {
+			if(isEmpty(budgetID)) throw new HTTPException(400, "budget ID is missing");
 			selectedBills = await this.budgetModel.find(
 				{
 					_id: budgetID
@@ -144,9 +149,11 @@ class BudgetService {
 				}	
 			);
 		} else {
+			if(!isEmpty(budgetID)) throw new HTTPException(401, "unauthorized");
+			const id = await getBudgetID(userID);
 			selectedBills = await this.budgetModel.find(
 				{
-					_id: budgetID,
+					_id: id,
 					createdBy: userID
 				}, {
 					bills: {
@@ -175,7 +182,6 @@ class BudgetService {
 		let testForMultiple: BudgetManager[];
 		if(group != Group.root) {
 			testForMultiple = await this.budgetModel.find({createdBy: userID});
-			console.log(testForMultiple)
 			if(testForMultiple.length == 0) {
 				createBudgetData =	await this.budgetModel.create({...budgetData});
 			} else {

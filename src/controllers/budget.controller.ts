@@ -112,10 +112,11 @@ class BudgetController {
 		try {
 			const data = verify(req.cookies.Authorization, SECRET_KEY) as DataStoredInToken; 
 			const auth = data.group; 
-			const ID: string = req.params.id;
+			const budgetID: string = req.params.id;
 			const operation: string = req.params.operation;
 			const balance: string = req.params.balance;
-			const balanceBudgetData: BudgetManager = await this.budgetService.updateBalance(ID, operation, balance, auth);
+			const userID: string = data._id;
+			const balanceBudgetData: BudgetManager = await this.budgetService.updateBalance(budgetID, operation, balance, auth, userID);
 			res.status(200).json({data: balanceBudgetData, message:"added"});
 		} catch(err) {
 			next(err);

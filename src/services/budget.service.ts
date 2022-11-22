@@ -196,15 +196,19 @@ class BudgetService {
 	}
 
 	// root users can pay any bills, regular users, however, can pay only bills in budget managers they created
+	// regular users only need to pass the bill id 
 	public async payBill(budgetID: string, billID: string, group: Group, userID: string): Promise<BudgetManager> {
 		if (isEmpty(group) || isEmpty(userID)) throw new HTTPException(401, "must be logged in");
-		if(isEmpty(budgetID) || isEmpty(billID)) throw new HTTPException(400,"incomplete path");
+		if (isEmpty(billID)) throw new HTTPException(400,"incomplete path");
 
 		let selectedBudget: BudgetManager&Document|null; 
+		const id = await getBudgetID(userID);
 		if(group == Group.root) {
+			if(isEmpty(budgetID)) throw new HTTPException(400, "missing budget ID");
 			selectedBudget = await budgetModel.findOne({_id: budgetID});
 		} else {
-			selectedBudget = await budgetModel.findOne({_id: budgetID, createdBy: userID});
+			if(!isEmpty(budgetID)) throw new HTTPException(401, "unauthorized");
+			selectedBudget = await budgetModel.findOne({_id: id, createdBy: userID});
 		}
 
 		if(!selectedBudget) throw new HTTPException(404, "not found");
@@ -225,36 +229,55 @@ class BudgetService {
 		const updated = await selectedBudget.save();
 		if(!updated) throw new HTTPException(409, "conflict");
 
-		const updateBalance: BudgetManager|null = await this.budgetModel.findOneAndUpdate(
-			{_id: budgetID},
-			{
-				$inc: {
-					"totalBalance": - selectedBillCost 
-				} 
-			},
-			{
-				returnOriginal: false
-			}
-		);
+
+		let updateBalance: BudgetManager|null; 
+		if(group == Group.root) {
+			updateBalance = await this.budgetModel.findOneAndUpdate(
+				{_id: budgetID},
+				{
+					$inc: {
+						"totalBalance": - selectedBillCost 
+					} 
+				},
+				{
+					returnOriginal: false
+				}
+			);
+		} else {
+			updateBalance = await this.budgetModel.findOneAndUpdate(
+				{_id: id},
+				{
+					$inc: {
+						"totalBalance": - selectedBillCost 
+					} 
+				},
+				{
+					returnOriginal: false
+				}
+			); 
+		}
+
 
 		if(!updateBalance) throw new HTTPException(409, "does not exist");
 		return updateBalance;
 	}
 
-	// only root users can set their balance 
-	public async updateBalance(ID: string, operation: string, balance: string, auth: string): Promise<BudgetManager|never> {
-		if(isEmpty(ID) || isEmpty(balance) || isEmpty(operation)) throw new HTTPException(400, "incomplete path");
+	// everyone can update their balance, however only root users need to pass the budgetID
+	public async updateBalance(budgetID: string, operation: string, balance: string, auth: Group, userID: string): Promise<BudgetManager|never> {
+		if(isEmpty(balance) || isEmpty(operation)) throw new HTTPException(400, "incomplete path");
 		if(isEmpty(auth)) throw new HTTPException(401, "unauthorized");
 
 		const nBalance = Number(balance);
 		if(nBalance == NaN) throw new HTTPException(422, "balance must be numeric");
 
 		let updateBalance: BudgetManager|null = null;
+		let searchID = auth === Group.root ? budgetID : await getBudgetID(userID);
+		if(auth == Group.root) if(isEmpty(budgetID)) throw new HTTPException(400, "missing budget ID");
 
 		switch(operation) {
 			case("add"):
 				updateBalance = await this.budgetModel.findByIdAndUpdate(
-					ID,
+					searchID,
 					{
 						$inc: {"totalBalance": nBalance}
 					},
@@ -266,7 +289,7 @@ class BudgetService {
 
 			case("sub"):
 				updateBalance = await this.budgetModel.findByIdAndUpdate(
-					ID,
+					searchID,
 					{
 						$inc : {"totalBalance": -nBalance}
 					},
@@ -277,9 +300,8 @@ class BudgetService {
 			break;
 
 			case("set"):
-				if(auth == Group.root) {
 				updateBalance = await this.budgetModel.findByIdAndUpdate(
-					ID,
+					searchID,
 					{
 						$set : {"totalBalance": nBalance}
 					},
@@ -287,7 +309,6 @@ class BudgetService {
 						returnOriginal: false
 					}
 				);
-			} else throw new HTTPException (401, "unauthorized");
 			break;
 
 			default:
@@ -302,7 +323,7 @@ class BudgetService {
 	// only root users can update budget managers
 	public async updateBudget(ID: string, budgetData: CreateBudgetDto, group: Group): Promise<BudgetManager|never> {
 		if (isEmpty(budgetData)) throw new HTTPException(400, "budget data is empty");
-		if (group !== Group.root) throw new HTTPException(401, "this operation requires root access");
+		if (group !== Group.root) throw new HTTPException(401, "unauthorized");
 		const updateBudget: BudgetManager|null = await this.budgetModel.findByIdAndUpdate(ID, {...budgetData}, {returnOriginal: false});
 		if(!updateBudget) throw new HTTPException(409, "budget manager does not exist");
 		return updateBudget;
